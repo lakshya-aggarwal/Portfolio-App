@@ -19,6 +19,16 @@ interface ProjectCardProps {
 export function ProjectCard({ project }: ProjectCardProps) {
     return (
         <Card className="flex flex-col h-full overflow-hidden transition-all hover:shadow-md">
+            {project.image && (
+                <div className="w-full h-48 overflow-hidden relative group">
+                    <img
+                        src={project.image}
+                        alt={project.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+                </div>
+            )}
             <CardHeader>
                 <CardTitle>{project.title}</CardTitle>
                 <CardDescription className="line-clamp-2">
