@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { CoverParallax } from "@/components/common/CoverParallax";
 import type { Project } from "@/lib/schema";
 
 /**
@@ -20,7 +21,7 @@ export function ProjectCard({
       data-cursor="open"
       className="group block focus-visible:outline-offset-8"
     >
-      <div className="relative overflow-hidden bg-surface">
+      <CoverParallax className="relative aspect-[4/3] overflow-hidden bg-surface">
         <Image
           src={project.cover.src}
           alt={project.cover.alt}
@@ -28,9 +29,9 @@ export function ProjectCard({
           height={project.cover.height}
           priority={priority}
           sizes="(min-width: 64rem) 44vw, (min-width: 48rem) 60vw, 88vw"
-          className="aspect-[4/3] w-full object-cover transition-transform duration-[900ms] ease-[var(--e-out)] group-hover:scale-[1.035]"
+          className="h-full w-full object-cover"
         />
-      </div>
+      </CoverParallax>
 
       <div className="flex items-baseline justify-between gap-4 pt-4">
         <h3 className="text-h3 leading-none">{project.title}</h3>

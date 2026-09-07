@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { ProjectCard } from "@/components/common/ProjectCard";
-import { Reveal } from "@/motion/Reveal";
+import { ProjectRail } from "@/components/common/ProjectRail";
+import { SplitText } from "@/motion/SplitText";
 import type { Project, Skill } from "@/lib/schema";
 
 /**
@@ -49,9 +49,9 @@ export function StackWork({ projects, tech, skills }: Props) {
       >
         <div className="shell">
           <p className="eyebrow">Stack</p>
-          <h2 className="max-w-[26ch] pt-8 text-h2">
+          <SplitText as="h2" className="block max-w-[26ch] pt-8 text-h2">
             Grab a stone. It filters the work.
-          </h2>
+          </SplitText>
           <p className="max-w-[52ch] pt-5 text-ink-dim">
             Everything I actually build with, given mass. Throw them around, or
             use the buttons below if you would rather just get on with it.
@@ -148,12 +148,8 @@ export function StackWork({ projects, tech, skills }: Props) {
         {/* A couple of degrees of skew proportional to scroll speed, straight
             from the scroll loop's CSS variable - no React renders involved.
             The reduced-motion rule in globals.css zeroes it out. */}
-        <div className="velocity-skew grid gap-x-10 gap-y-16 pt-12 md:grid-cols-2">
-          {filtered.map((project, i) => (
-            <Reveal key={project.slug} index={i % 2}>
-              <ProjectCard project={project} priority={i === 0} />
-            </Reveal>
-          ))}
+        <div className="velocity-skew pt-12">
+          <ProjectRail projects={filtered} />
         </div>
 
         {filtered.length === 0 ? (

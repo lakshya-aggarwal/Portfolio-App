@@ -128,18 +128,27 @@ chips and the physics tiles are both derived from what projects actually use, vi
 build (Lumina/Flux/Prism/Vertex, with stock cover photos and example.com links).
 Replace them with real work before this goes anywhere public.
 
-## Measured budgets
+## Runtime notes
 
-Not aspirations - these are measured against the production build.
+There is deliberately **no first-load JavaScript budget** on this project, and
+one should not be reintroduced. The site's whole purpose is to be memorable and
+physically expressive, so animation and 3D work take priority over shaving
+kilobytes. Do not remove a motion or WebGL library to save bytes, and do not
+gate a feature on bundle size.
 
-- **First-load JS: ~190KB gzipped.** React 19 + Next 16's client runtime is
-  roughly 150KB of that and is effectively a floor, so treat ~170KB as the
-  realistic target rather than the 150KB the original plan assumed.
-- **three.js + Rapier are excluded from the first load** and must stay that way.
-  `src/gl/` is reached only through `next/dynamic(..., { ssr: false })` in
-  `StackWork.tsx`. Verify after any change to that import.
-- Physics bodies: 14 desktop / 8 mobile, DPR capped at 2, `frameloop` drops to
-  `"demand"` and Rapier pauses when the canvas is offscreen or the tab is hidden.
+What does still matter is *frame* cost, which serves the motion rather than
+fighting it:
+
+- Physics bodies capped at 14 desktop / 8 mobile; Rapier sleeps them at rest.
+- DPR capped at 2 for the Assembly, 1.5 for the relief backdrop (a full-viewport
+  fragment shader with three fbm taps per pixel gains nothing above that).
+- Canvases pause when scrolled offscreen and when the tab is hidden -
+  `frameloop` drops to `"demand"` and physics pauses.
+- three.js and Rapier still load through `next/dynamic(..., { ssr: false })`.
+  That is about not blocking first paint, not about total size.
+- Two WebGL contexts exist: the fixed relief backdrop and the Assembly. Adding
+  more means portalling through drei's `<View>` into one of them rather than
+  mounting a third canvas.
 
 ## `legacy/`
 

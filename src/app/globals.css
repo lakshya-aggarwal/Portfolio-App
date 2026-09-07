@@ -218,6 +218,68 @@
     color: var(--sem-ink-dim);
   }
 
+  /* Curtain: wipes away on load and on every navigation. Resting state is
+     cleared, so if the animation never runs nothing is ever covered. */
+  .curtain {
+    transform-origin: top;
+    transform: scaleY(0);
+    animation: curtain-lift 620ms var(--e-in-out) both;
+  }
+  @keyframes curtain-lift {
+    0% { transform: scaleY(1); }
+    100% { transform: scaleY(0); }
+  }
+
+  /* SplitText: fragments ship visible. The hidden state is added by JS before
+     paint, so no-JS, print and crawlers always get readable text. */
+  .split-mask {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    padding-bottom: 0.12em;
+    margin-bottom: -0.12em;
+  }
+  .split-part {
+    display: inline-block;
+    will-change: transform;
+  }
+  [data-split="hidden"] .split-part {
+    transform: translateY(115%);
+    opacity: 0;
+  }
+  [data-split="shown"] .split-part {
+    transform: none;
+    opacity: 1;
+    transition:
+      transform var(--t-slow) var(--e-out)
+        calc(var(--split-delay, 0s) + var(--i, 0) * 62ms),
+      opacity var(--t-slow) var(--e-out)
+        calc(var(--split-delay, 0s) + var(--i, 0) * 62ms);
+  }
+
+  /* Film grain over the whole page. Static noise in a data URI rather than a
+     canvas: it costs one paint and no frames. The overlay blend keeps it from
+     lifting the black point. */
+  .grain {
+    position: fixed;
+    inset: -50%;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0.045;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: grain-drift 7s steps(6, end) infinite;
+    will-change: transform;
+  }
+  @keyframes grain-drift {
+    0% { transform: translate3d(0, 0, 0); }
+    20% { transform: translate3d(-3%, 2%, 0); }
+    40% { transform: translate3d(2%, -3%, 0); }
+    60% { transform: translate3d(-2%, -2%, 0); }
+    80% { transform: translate3d(3%, 1%, 0); }
+    100% { transform: translate3d(0, 0, 0); }
+  }
+
   /* Scroll-velocity skew. --scroll-velocity is published by the Lenis loop in
      src/motion/SmoothScroll.tsx; clamped so a fast flick can't shear the page. */
   .velocity-skew {
@@ -279,6 +341,18 @@
   .velocity-skew {
     transform: none !important;
   }
+  .grain {
+    animation: none !important;
+  }
+  .curtain {
+    animation: none !important;
+    transform: scaleY(0) !important;
+  }
+  [data-split] .split-part {
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
 }
 
 @media print {
@@ -286,8 +360,14 @@
     background: #fff;
     color: #000;
   }
-  .no-print {
+  .no-print,
+  .grain,
+  .curtain {
     display: none !important;
+  }
+  [data-split] .split-part {
+    transform: none !important;
+    opacity: 1 !important;
   }
   [data-reveal] {
     opacity: 1 !important;

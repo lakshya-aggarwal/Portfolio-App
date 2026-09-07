@@ -5,6 +5,11 @@ import { SmoothScroll } from "@/motion/SmoothScroll";
 import { Cursor } from "@/motion/Cursor";
 import { Nav } from "@/components/site/Nav";
 import { Footer } from "@/components/site/Footer";
+import { Palette } from "@/components/site/Palette";
+import { RouteTransition } from "@/components/site/RouteTransition";
+// The relief backdrop is WebGL: never server-rendered, and it must not sit in
+// the first-paint path. The page is fully legible without it.
+import { BackdropMount } from "@/gl/BackdropMount";
 import { site } from "@/lib/site";
 
 /**
@@ -79,10 +84,14 @@ export default function RootLayout({
           Skip to content
         </a>
         <SmoothScroll>
+          <BackdropMount />
+          <div aria-hidden="true" className="grain" />
           <Cursor />
           <Nav />
           <main id="main">{children}</main>
           <Footer />
+          <Palette />
+          <RouteTransition />
         </SmoothScroll>
       </body>
     </html>

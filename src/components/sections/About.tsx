@@ -1,15 +1,14 @@
 import { Reveal } from "@/motion/Reveal";
+import { SplitText } from "@/motion/SplitText";
 
 export function About() {
   return (
     <section id="about" className="shell border-t border-line py-24 md:py-32">
       <p className="eyebrow">About</p>
       <div className="grid gap-10 pt-8 md:grid-cols-[1fr_1.15fr] md:gap-16">
-        <Reveal>
-          <h2 className="text-h2">
-            I care about the parts users feel and rarely name.
-          </h2>
-        </Reveal>
+        <SplitText as="h2" className="block text-h2">
+          I care about the parts users feel and rarely name.
+        </SplitText>
         <Reveal index={1}>
           <div className="flex flex-col gap-4 text-ink-dim">
             <p>

@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import type { Metadata } from "next";
+import { Counter } from "@/motion/Counter";
+import { SplitText } from "@/motion/SplitText";
+import { Reveal } from "@/motion/Reveal";
 import { getProject, getProjectSlugs } from "@/lib/content";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -31,10 +34,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 const mdxComponents = {
   h2: (props: React.ComponentProps<"h2">) => (
-    <h2 className="pt-12 text-h3" {...props} />
+    <Reveal as="div" distance={14}>
+      <h2 className="pt-12 text-h3" {...props} />
+    </Reveal>
   ),
   p: (props: React.ComponentProps<"p">) => (
-    <p className="max-w-[64ch] pt-4 text-ink-dim" {...props} />
+    <Reveal as="div" distance={12}>
+      <p className="max-w-[64ch] pt-4 text-ink-dim" {...props} />
+    </Reveal>
   ),
   a: (props: React.ComponentProps<"a">) => (
     <a
@@ -66,7 +73,9 @@ export default async function ProjectPage({ params }: Params) {
       </Link>
 
       <header className="pt-10">
-        <h1 className="max-w-[20ch] text-h1">{project.title}</h1>
+        <SplitText as="h1" className="block max-w-[20ch] text-h1" immediate delay={0.12}>
+          {project.title}
+        </SplitText>
         <p className="max-w-[56ch] pt-6 text-lead text-ink-dim">
           {project.tagline}
         </p>
@@ -110,7 +119,7 @@ export default async function ProjectPage({ params }: Params) {
           {project.metrics.map((m) => (
             <div key={m.label} className="bg-ground p-5">
               <dd className="m-0 font-mono text-[1.4rem] tabular-nums leading-none">
-                {m.value}
+                <Counter value={m.value} />
               </dd>
               <dt className="eyebrow pt-2">{m.label}</dt>
             </div>
