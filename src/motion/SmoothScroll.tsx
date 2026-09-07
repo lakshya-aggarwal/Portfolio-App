@@ -4,7 +4,7 @@ import Lenis from "lenis";
 import { createContext, useContext, useEffect, useRef, type ReactNode } from "react";
 
 /**
- * L2 — the scroll signal, and the only scroll loop in the app.
+ * L2 - the scroll signal, and the only scroll loop in the app.
  *
  * It publishes two values as CSS custom properties on <html>:
  *   --scroll-progress  0..1 down the document
@@ -45,7 +45,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // Reduced motion gets native scrolling and a zero velocity signal. Not the
-    // same animation faster — hijacked scroll is what makes people motion sick.
+    // same animation faster - hijacked scroll is what makes people motion sick.
     if (reduced) {
       const onScroll = () => {
         const max = root.scrollHeight - window.innerHeight;
@@ -58,7 +58,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
     const lenis = new Lenis({
       duration: 1.05,
-      // Long-tail exponential — the --e-out curve's continuous cousin.
+      // Long-tail exponential - the --e-out curve's continuous cousin.
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       touchMultiplier: 1.6,
     });

@@ -5,7 +5,7 @@ import { Contact } from "@/components/sections/Contact";
 import { getProjects, getSkills, getUsedTech } from "@/lib/content";
 
 /**
- * L6 — the route reads content and hands it down. This is the only layer that
+ * L6 - the route reads content and hands it down. This is the only layer that
  * touches the filesystem, and the only layer that knows what a "project" is
  * before it becomes props.
  */

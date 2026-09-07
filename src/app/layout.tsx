@@ -8,7 +8,7 @@ import { Footer } from "@/components/site/Footer";
 import { site } from "@/lib/site";
 
 /**
- * L6 — the shell. Owns fonts, theme, the scroll provider and the cursor.
+ * L6 - the shell. Owns fonts, theme, the scroll provider and the cursor.
  * Everything below this layer receives data and tokens; nothing below it
  * reaches for a global.
  */
@@ -34,15 +34,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} — ${site.role}`,
-    template: `%s — ${site.name}`,
+    default: `${site.name} - ${site.role}`,
+    template: `%s - ${site.name}`,
   },
   description: site.description,
   authors: [{ name: site.name, url: site.url }],
   openGraph: {
     type: "website",
     url: site.url,
-    title: `${site.name} — ${site.role}`,
+    title: `${site.name} - ${site.role}`,
     description: site.description,
     siteName: site.name,
   },

@@ -4,13 +4,13 @@ import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { STAGGER } from "@/motion/tokens";
 
 /**
- * L2 — the house reveal, and the only one.
+ * L2 - the house reveal, and the only one.
  *
  * The rule it enforces: **the resting state is visible.** The server renders
  * the content with no hidden styling at all, so no-JS visitors, crawlers,
  * printers and full-page screenshots always get it. The hidden state is applied
- * on the client inside a layout effect — which runs before paint, so there is
- * no flash — and removed as soon as the element intersects.
+ * on the client inside a layout effect - which runs before paint, so there is
+ * no flash - and removed as soon as the element intersects.
  *
  * The earlier version used Motion's `whileInView` with `initial={{opacity: 0}}`.
  * That server-renders `opacity: 0` as an inline style, which means anything that

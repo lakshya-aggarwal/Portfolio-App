@@ -8,7 +8,7 @@ import { getProject, getProjectSlugs } from "@/lib/content";
 
 type Params = { params: Promise<{ slug: string }> };
 
-/** Static at build time — every case study is a plain HTML file on the CDN. */
+/** Static at build time - every case study is a plain HTML file on the CDN. */
 export function generateStaticParams() {
   return getProjectSlugs().map((slug) => ({ slug }));
 }

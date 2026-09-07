@@ -13,13 +13,13 @@ import {
 } from "@react-three/rapier";
 
 /**
- * L3/L4 — The Assembly. Your stack as physical objects: carved tiles dropped
+ * L3/L4 - The Assembly. Your stack as physical objects: carved tiles dropped
  * into a bounded space under gravity, grabbable and throwable, and clicking one
  * filters the work below. That last part is what makes it navigation instead of
  * a toy.
  *
  * Budget discipline (see the blueprint's numbers):
- *  · DPR capped at 2 — retina at 3x doubles the fill cost for no visible gain.
+ *  · DPR capped at 2 - retina at 3x doubles the fill cost for no visible gain.
  *  · Body count capped: 14 desktop / 8 mobile.
  *  · The whole canvas stops when scrolled out of view or the tab is hidden.
  *  · Rapier sleeps bodies at rest, so a settled pile costs almost nothing.
@@ -73,7 +73,7 @@ type TileProps = {
   selected: boolean;
   onSelect: (label: string) => void;
   spawn: [number, number];
-  /** Viewport-relative size factor — see Tiles. */
+  /** Viewport-relative size factor - see Tiles. */
   scale: number;
 };
 
@@ -189,7 +189,7 @@ function Bounds() {
 /**
  * Spawn positions have to be derived from the real viewport, not hardcoded.
  * At zoom 92 on a 500px-tall canvas the visible world is only ~5.5 units high,
- * so a fixed `y = 3.2 + i * 0.85` put every tile above the top edge — where,
+ * so a fixed `y = 3.2 + i * 0.85` put every tile above the top edge - where,
  * with physics paused until the section scrolls into view, they stayed.
  *
  * They now start inside the frame, spread across the top. That also gives the
@@ -206,7 +206,7 @@ function Tiles({
 }) {
   const { viewport } = useThree();
   // Fit the WIDEST tile to the frame rather than scaling against a nominal
-  // desktop width — the latter shrank phone tiles to the point of being
+  // desktop width - the latter shrank phone tiles to the point of being
   // unreadable. On any real phone this stays at 1; it only bites on very
   // narrow frames, which is exactly when it should.
   const widest = Math.max(...labels.map((l) => 0.62 + l.length * 0.155), 1);
@@ -218,7 +218,7 @@ function Tiles({
   return (
     <>
       {labels.map((label, i) => {
-        // Deterministic jitter — a seeded offset, so the layout is stable across
+        // Deterministic jitter - a seeded offset, so the layout is stable across
         // renders but doesn't look laid out on a grid.
         const jitter = Math.sin(i * 12.9898) * 0.5 * scale;
         const x = ((i % 3) - 1) * (spread / 3) + jitter;

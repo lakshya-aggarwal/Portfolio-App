@@ -11,7 +11,7 @@ import type { Project, Skill } from "@/lib/schema";
  * state: the selected technology. Grabbing a tile in the canvas and pressing a
  * chip in the DOM are the same action.
  *
- * The canvas is loaded lazily and never server-rendered — three.js and Rapier's
+ * The canvas is loaded lazily and never server-rendered - three.js and Rapier's
  * WASM must not be in the first-paint path.
  */
 const Assembly = dynamic(() => import("@/gl/Assembly"), {
@@ -146,7 +146,7 @@ export function StackWork({ projects, tech, skills }: Props) {
         </div>
 
         {/* A couple of degrees of skew proportional to scroll speed, straight
-            from the scroll loop's CSS variable — no React renders involved.
+            from the scroll loop's CSS variable - no React renders involved.
             The reduced-motion rule in globals.css zeroes it out. */}
         <div className="velocity-skew grid gap-x-10 gap-y-16 pt-12 md:grid-cols-2">
           {filtered.map((project, i) => (

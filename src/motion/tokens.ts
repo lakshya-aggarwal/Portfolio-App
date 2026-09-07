@@ -1,5 +1,5 @@
 /**
- * L2 — the motion vocabulary. Every duration, curve and stagger in the app
+ * L2 - the motion vocabulary. Every duration, curve and stagger in the app
  * resolves from here. A component writing `duration: 0.4` inline is the drift
  * this file exists to prevent.
  *
@@ -24,7 +24,7 @@ export const DURATION = {
 } as const;
 
 /**
- * Springs, not easings, for anything the user is touching — a spring responds
+ * Springs, not easings, for anything the user is touching - a spring responds
  * to velocity and a bezier cannot.
  */
 export const SPRING = {
@@ -32,7 +32,7 @@ export const SPRING = {
   soft: { type: "spring", stiffness: 120, damping: 20 },
   /** Cursor, hover, anything that must feel immediate. */
   snappy: { type: "spring", stiffness: 260, damping: 26 },
-  /** Physics objects and drag — mass makes them read as stone, not foam. */
+  /** Physics objects and drag - mass makes them read as stone, not foam. */
   heavy: { type: "spring", stiffness: 80, damping: 18, mass: 1.4 },
 } as const;
 

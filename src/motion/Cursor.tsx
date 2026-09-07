@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * L2 — state-aware cursor. Lerped toward the pointer, and it reads a verb off
+ * L2 - state-aware cursor. Lerped toward the pointer, and it reads a verb off
  * whatever is under it via [data-cursor], so a project card says "open" and the
  * physics scene says "drag".
  *
- * The lerp runs in one rAF loop writing transforms straight to the node — no
+ * The lerp runs in one rAF loop writing transforms straight to the node - no
  * React state per frame, no spring library. This is the same approach the
  * reference site takes (it exposes the factor as a `cursor-lerp` setting).
  *

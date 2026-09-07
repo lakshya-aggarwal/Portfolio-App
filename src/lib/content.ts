@@ -5,7 +5,7 @@ import { imageSize } from "image-size";
 import { ProjectFrontmatter, Skill, type Project } from "@/lib/schema";
 
 /**
- * L1 — the content reader. Server-only: it touches the filesystem, so importing
+ * L1 - the content reader. Server-only: it touches the filesystem, so importing
  * it from a client component is a build error, which is the intent.
  *
  * Covers are served straight from /public/media/<slug>/ and measured there, so
@@ -77,7 +77,7 @@ export function getProjectSlugs(): string[] {
   return getProjects().map((p) => p.slug);
 }
 
-/** The tech vocabulary actually in use, most-used first — drives the filter chips. */
+/** The tech vocabulary actually in use, most-used first - drives the filter chips. */
 export function getUsedTech(): { tech: string; count: number }[] {
   const counts = new Map<string, number>();
   for (const p of getProjects()) {

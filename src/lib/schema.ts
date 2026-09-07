@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /**
- * L1 — content shape. This is the boundary: anything that fails here fails the
+ * L1 - content shape. This is the boundary: anything that fails here fails the
  * build, not the page. Nothing downstream re-validates or defends against bad
  * content, because nothing downstream can receive any.
  */
@@ -31,7 +31,7 @@ export const Media = z.object({
   /** Intrinsic size. Present so next/image can reserve the box: this is the CLS fix. */
   width: z.number().int().positive(),
   height: z.number().int().positive(),
-  /** Required, not optional — an optional alt field is a field that stays empty. */
+  /** Required, not optional - an optional alt field is a field that stays empty. */
   alt: z.string().min(1),
 });
 export type Media = z.infer<typeof Media>;

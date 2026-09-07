@@ -18,7 +18,7 @@ are on, so they catch more than they look like they will.
 
 **Verify the WebGL work against a production build, not `npm run dev`.** React
 StrictMode double-mounts in development, which makes React Three Fiber lose its
-WebGL context — the canvas renders nothing and the console logs
+WebGL context - the canvas renders nothing and the console logs
 `THREE.WebGLRenderer: Context Lost`. That is a dev-only artifact. Use
 `npm run build && npx next start -p 3001` to see the real behaviour.
 
@@ -54,12 +54,12 @@ nothing below the route layer contains a content literal or a timing number.
 `src/motion/SmoothScroll.tsx` is the only scroll loop in the app. Lenis publishes
 two CSS custom properties on `<html>`:
 
-- `--scroll-progress` — 0..1 down the document
-- `--scroll-velocity` — signed, roughly -60..60
+- `--scroll-progress` - 0..1 down the document
+- `--scroll-velocity` - signed, roughly -60..60
 
 CSS consumes them directly (the reading-position bar in `Nav`, `.velocity-skew`
 in `globals.css`), so scroll-linked effects cost **zero React renders**. JS
-consumers that need the numbers — shader uniforms, for instance — read them from
+consumers that need the numbers - shader uniforms, for instance - read them from
 the ref via `useScrollSignal()` inside their own frame loop. Never read that ref
 during render.
 
@@ -67,7 +67,7 @@ during render.
 
 `src/motion/tokens.ts` holds every easing, duration, spring and stagger. A
 component writing `duration: 0.4` inline is the drift that file exists to
-prevent. The four easings are mirrored in `globals.css` for CSS transitions —
+prevent. The four easings are mirrored in `globals.css` for CSS transitions -
 those are the only duplicated values in the system; change both or neither.
 
 ## Rules with teeth
@@ -75,7 +75,7 @@ those are the only duplicated values in the system; change both or neither.
 These each cost real debugging time. Breaking them reintroduces a shipped bug.
 
 **Never use bare `text-[var(--foo)]` in Tailwind v4.** It is ambiguous between
-font-size and color, and Tailwind's type inference picks wrong — silently. It
+font-size and color, and Tailwind's type inference picks wrong - silently. It
 broke every heading size *and* every link colour on the site. Use the
 theme-generated utilities (`text-h1`, `text-ink-dim`, `bg-surface`, `border-line`)
 which are declared in the `@theme` block, or an explicit hint like
@@ -91,7 +91,7 @@ Component classes (`.shell`, `.eyebrow`, `.skip`, `.velocity-skew`) go in
 hidden styling server-side, then arms the hidden state in a `useLayoutEffect`
 (before paint) only for elements below the fold, and has a 4s failsafe. The
 earlier version used `initial={{opacity: 0}}`, which server-renders `opacity: 0`
-— so no-JS visitors, crawlers, printers and full-page screenshots all saw a blank
+ - so no-JS visitors, crawlers, printers and full-page screenshots all saw a blank
 page. Any new reveal must keep this property.
 
 **One `<Canvas>` per document.** Each extra canvas is another WebGL context, and
@@ -100,7 +100,7 @@ drei's `<View>`.
 
 **Don't texture a `RoundedBox`.** Its UVs wrap the whole solid, so a face-mapped
 texture comes out smeared and clipped. Put the label on its own `planeGeometry`
-in front of the stone — that is why `Assembly` has a separate label mesh.
+in front of the stone - that is why `Assembly` has a separate label mesh.
 
 **Media queries and the theme are external stores, not state.** Use
 `useMediaQuery`/`useTheme` from `src/lib/media.ts` (`useSyncExternalStore`).
@@ -117,7 +117,7 @@ cursor never mounts, reveals render immediately, and the skew is zeroed. Check
 Projects are `content/projects/<slug>/index.mdx` with Zod-validated frontmatter;
 covers are served from `public/media/<slug>/cover.jpg` and **measured on disk** at
 build time by `src/lib/content.ts`, so `next/image` always gets true intrinsic
-dimensions (this is the CLS fix — don't hand-write dimensions into frontmatter).
+dimensions (this is the CLS fix - don't hand-write dimensions into frontmatter).
 `status: draft` keeps a project out of `getProjects()` entirely.
 
 `stack` values must come from the `TECH` enum in `src/lib/schema.ts`; the filter
@@ -130,7 +130,7 @@ Replace them with real work before this goes anywhere public.
 
 ## Measured budgets
 
-Not aspirations — these are measured against the production build.
+Not aspirations - these are measured against the production build.
 
 - **First-load JS: ~190KB gzipped.** React 19 + Next 16's client runtime is
   roughly 150KB of that and is effectively a floor, so treat ~170KB as the
