@@ -1,0 +1,35 @@
+---
+title: Vertex
+tagline: Low-poly modelling toolkit that runs entirely in the browser, no install.
+year: 2024
+role: Design & build
+stack: ["Three.js", "WebGL", "TypeScript", "React"]
+cover: cover.jpg
+coverAlt: Faceted geometric form lit from a single side
+links:
+  repo: https://github.com/example/vertex
+  live: https://example.com/vertex
+order: 4
+status: published
+metrics:
+  - { label: "Max verts at 60fps", value: "180k" }
+  - { label: "Cold load", value: "1.1s" }
+---
+
+## The problem
+
+Browser 3D editors tend to prove that 3D is possible in a browser rather than
+being pleasant to model in. The tell is the undo stack: if it stores full scene
+snapshots, it will start dropping frames the moment the mesh gets interesting.
+
+## Approach
+
+Edits are stored as inverse operations rather than snapshots, so undo costs the
+size of the change instead of the size of the scene. Geometry lives in typed
+arrays that go straight to the GPU with no per-frame allocation, which is what
+holds the frame budget on a laptop without a discrete card.
+
+## What I'd do differently
+
+I built the gizmos before the selection model. Selection turned out to be the
+hard part, and half the gizmo code had to be rewritten once it existed.

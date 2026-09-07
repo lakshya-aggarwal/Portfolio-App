@@ -1,0 +1,36 @@
+---
+title: Lumina
+tagline: AI-assisted design system generator - tokens, components and docs from one prompt.
+year: 2025
+role: Design & build
+stack: ["React", "TypeScript", "Tailwind"]
+cover: cover.jpg
+coverAlt: Warm directional light falling across a folded paper surface
+links:
+  repo: https://github.com/example/lumina
+featured: true
+order: 1
+status: published
+metrics:
+  - { label: "Token sets generated", value: "1.2k" }
+  - { label: "Time to first component", value: "under 30s" }
+---
+
+## The problem
+
+Design systems die in the gap between a Figma file and the code that ships. A
+designer names a colour `Primary/500`; three sprints later the codebase has four
+near-identical blues and nobody remembers which one is canonical.
+
+## Approach
+
+Lumina treats the token set as the only source of truth and generates everything
+else from it - the Tailwind theme, the component variants, the documentation
+page. Changing a token is a one-line diff that propagates everywhere, which is
+the property that makes a system survive contact with a deadline.
+
+## What I'd do differently
+
+The first version generated components as strings. That was fast to build and
+miserable to maintain. Generating an AST and printing it was the right call from
+the start.

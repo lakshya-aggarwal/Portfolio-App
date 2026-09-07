@@ -1,0 +1,36 @@
+---
+title: Flux
+tagline: Real-time collaboration surface for creative teams - shared cursors, no refresh.
+year: 2025
+role: Frontend & realtime
+stack: ["Next.js", "WebSockets", "TypeScript", "PostgreSQL"]
+cover: cover.jpg
+coverAlt: Long-exposure light trails curving through darkness
+links:
+  live: https://example.com/flux
+featured: true
+order: 2
+status: published
+metrics:
+  - { label: "Median sync latency", value: "42ms" }
+  - { label: "Concurrent editors tested", value: "60" }
+---
+
+## The problem
+
+Most collaboration tools are optimistic about the network. They assume a message
+sent is a message received, and the first time someone's train enters a tunnel
+the document silently forks.
+
+## Approach
+
+Every mutation is an intent with a monotonic sequence number, applied locally
+first and reconciled on acknowledgement. When a client reconnects it replays
+from its last known sequence rather than refetching the world - which is what
+keeps reconnection feeling instant instead of like a page load.
+
+## What I'd do differently
+
+I hand-rolled the reconciliation before reaching for a CRDT. Writing it taught
+me exactly which guarantees I needed, but I would not ship a hand-rolled version
+twice.

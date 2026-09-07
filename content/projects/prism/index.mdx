@@ -1,0 +1,34 @@
+---
+title: Prism
+tagline: Extracts accessible colour schemes from any image, contrast-checked before you see them.
+year: 2024
+role: Design & build
+stack: ["React", "TypeScript", "WebGL"]
+cover: cover.jpg
+coverAlt: Refracted spectrum spilling across a dark surface
+links:
+  repo: https://github.com/example/prism
+order: 3
+status: published
+metrics:
+  - { label: "Palettes extracted", value: "8.4k" }
+  - { label: "WCAG AA pass rate", value: "100%" }
+---
+
+## The problem
+
+Colour-extraction tools give you the five most common colours in an image. They
+almost never tell you that four of them fail contrast against each other, which
+is the only thing you actually needed to know.
+
+## Approach
+
+Extraction runs as a fragment shader over a downsampled texture - k-means in
+Oklab rather than RGB, so perceptual distance matches what the eye reports. Every
+candidate pair is contrast-scored before it reaches the UI, and anything that
+can't clear AA at body size is never offered as a text colour.
+
+## What I'd do differently
+
+Oklab from the beginning. The RGB version produced palettes that were
+numerically diverse and visually muddy, and I lost a week to that.

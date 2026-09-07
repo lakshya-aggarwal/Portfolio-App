@@ -1,0 +1,296 @@
+@import "tailwindcss";
+
+/* ============================================================
+   L0 — tokens. Nothing above this layer invents a colour,
+   a curve, a duration or a grid step.
+
+   Motion curves are mirrored in src/motion/tokens.ts for the JS
+   animation layer. Those seven values are the only duplication in
+   the system; change both or neither.
+   ============================================================ */
+
+@theme {
+  /* stone family — dark ground, warm paper, one cool signal */
+  --color-obsidian: #0b0b0d;
+  --color-basalt: #191920;
+  --color-ash: #3b3b46;
+  --color-chalk: #e8e4dc;
+  --color-signal: #3f5bd6;
+  --color-ember: #c4622d;
+
+  /* semantic aliases — components only ever use these */
+  --color-ground: var(--sem-ground);
+  --color-surface: var(--sem-surface);
+  --color-line: var(--sem-line);
+  --color-ink: var(--sem-ink);
+  --color-ink-dim: var(--sem-ink-dim);
+  --color-accent: var(--sem-accent);
+
+  /* shadcn compatibility. The kept primitives (and anything added later, e.g.
+     `command` for the ⌘K palette) are written against these names, so they are
+     mapped onto the stone palette rather than left undefined — an unmapped
+     `bg-primary` renders as nothing at all. */
+  --color-background: var(--sem-ground);
+  --color-foreground: var(--sem-ink);
+  --color-card: var(--sem-surface);
+  --color-card-foreground: var(--sem-ink);
+  --color-popover: var(--sem-surface);
+  --color-popover-foreground: var(--sem-ink);
+  --color-primary: var(--sem-ink);
+  --color-primary-foreground: var(--sem-ground);
+  --color-secondary: var(--sem-surface);
+  --color-secondary-foreground: var(--sem-ink);
+  --color-muted: var(--sem-surface);
+  --color-muted-foreground: var(--sem-ink-dim);
+  --color-accent-foreground: #ffffff;
+  --color-destructive: #b5432c;
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--sem-line);
+  --color-input: var(--sem-line);
+  --color-ring: var(--sem-accent);
+
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-body: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* fluid type scale — every step is clamp()ed, nothing steps off it */
+  --text-eyebrow: 0.7rem;
+  --text-micro: clamp(0.78rem, 0.76rem + 0.1vw, 0.84rem);
+  --text-body: clamp(1rem, 0.97rem + 0.15vw, 1.08rem);
+  --text-lead: clamp(1.12rem, 1.02rem + 0.5vw, 1.4rem);
+  --text-h3: clamp(1.25rem, 1.1rem + 0.7vw, 1.6rem);
+  --text-h2: clamp(1.7rem, 1.3rem + 2vw, 2.9rem);
+  --text-h1: clamp(2.6rem, 1.4rem + 5.4vw, 6.5rem);
+  --text-mega: clamp(3.4rem, 1rem + 11vw, 11rem);
+}
+
+/* ---- theme: dark by default, this site has a dark identity ---- */
+:root {
+  --sem-ground: #0b0b0d;
+  --sem-surface: #191920;
+  --sem-line: #2a2a33;
+  --sem-ink: #e8e4dc;
+  --sem-ink-dim: #8f8f9c;
+  --sem-accent: #6b82e8;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --sem-ground: #e8e4dc;
+  --sem-surface: #f2efe9;
+  --sem-line: #cdc7bb;
+  --sem-ink: #191920;
+  --sem-ink-dim: #5d5d68;
+  --sem-accent: #3f5bd6;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --sem-ground: #e8e4dc;
+    --sem-surface: #f2efe9;
+    --sem-line: #cdc7bb;
+    --sem-ink: #191920;
+    --sem-ink-dim: #5d5d68;
+    --sem-accent: #3f5bd6;
+    color-scheme: light;
+  }
+}
+
+/* ---- motion: four easings, mirrored in src/motion/tokens.ts ---- */
+:root {
+  --e-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --e-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --e-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --e-linear: linear;
+
+  --t-fast: 180ms;
+  --t-base: 420ms;
+  --t-slow: 900ms;
+
+  /* ---- grid: gap-derived, so one number re-proportions the page ---- */
+  --g-columns: 6;
+  --g-gap: clamp(0.9rem, 2.2vw, 1.6rem);
+  --g-margin: calc(var(--g-gap) * 1.25);
+  --g-max: 90rem;
+}
+@media (min-width: 48rem) {
+  :root {
+    --g-columns: 12;
+    --g-margin: calc(var(--g-gap) * 2.5);
+  }
+}
+
+/* ============================================================
+   base — MUST be inside @layer base.
+
+   Unlayered rules beat everything inside @layer utilities, so a bare
+   `a { color: inherit }` here silently killed every text-* colour utility on
+   every link in the app. Layer order is theme → base → components → utilities,
+   so utilities win from inside a layer and lose from outside one.
+   ============================================================ */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    /* Lenis drives scrolling; native smooth-scroll would fight it */
+    scroll-behavior: auto;
+  }
+
+  body {
+    margin: 0;
+    background: var(--sem-ground);
+    color: var(--sem-ink);
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    margin: 0;
+    /* Fraunces axes: a little wonk and soft, dialled back from the defaults */
+    font-variation-settings: "SOFT" 20, "WONK" 1;
+  }
+
+  p {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img,
+  video,
+  canvas {
+    max-width: 100%;
+    display: block;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--sem-accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Deep links and reduced-motion jumps bypass Lenis, so the landing target
+     needs to clear the 64px fixed header on its own. */
+  :target,
+  section[id] {
+    scroll-margin-top: 5.5rem;
+  }
+}
+
+/* ============================================================
+   components — after base, before utilities, so a utility can still
+   override any of these on a case-by-case basis.
+   ============================================================ */
+
+@layer components {
+  .shell {
+    width: 100%;
+    max-width: var(--g-max);
+    margin-inline: auto;
+    padding-inline: var(--g-margin);
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-eyebrow);
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--sem-ink-dim);
+  }
+
+  /* Scroll-velocity skew. --scroll-velocity is published by the Lenis loop in
+     src/motion/SmoothScroll.tsx; clamped so a fast flick can't shear the page. */
+  .velocity-skew {
+    transform: skewY(clamp(-1.6deg, calc(var(--scroll-velocity, 0) * -0.04deg), 1.6deg));
+    transition: transform 220ms var(--e-out);
+    will-change: transform;
+  }
+
+  /* Reveal — the resting state is VISIBLE. The hidden state is added by JS in a
+     layout effect (before paint), so no-JS, print and crawlers all get content,
+     and there is no flash for everyone else. */
+  [data-reveal="hidden"] {
+    opacity: 0;
+    transform: translateY(var(--reveal-distance, 18px));
+  }
+  [data-reveal="shown"] {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--t-slow) var(--e-out) var(--reveal-delay, 0ms),
+      transform var(--t-slow) var(--e-out) var(--reveal-delay, 0ms);
+  }
+
+  /* Skip link — visible only when focused */
+  .skip {
+    position: absolute;
+    left: var(--g-margin);
+    top: -100%;
+    z-index: 100;
+    background: var(--sem-ink);
+    color: var(--sem-ground);
+    padding: 0.6rem 1rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    transition: top var(--t-fast) var(--e-out);
+  }
+  .skip:focus {
+    top: var(--g-margin);
+  }
+}
+
+/* ============================================================
+   reduced motion — a different, still rendering, not a dimmer.
+   Unlayered and !important on purpose: this must beat everything.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .velocity-skew {
+    transform: none !important;
+  }
+}
+
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .no-print {
+    display: none !important;
+  }
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

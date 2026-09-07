@@ -1,0 +1,14 @@
+[
+  { "name": "TypeScript", "category": "Languages", "years": 5 },
+  { "name": "JavaScript", "category": "Languages", "years": 6 },
+  { "name": "Python", "category": "Languages", "years": 3 },
+  { "name": "React", "category": "Frameworks", "years": 5 },
+  { "name": "Next.js", "category": "Frameworks", "years": 4 },
+  { "name": "Tailwind CSS", "category": "Frameworks", "years": 4 },
+  { "name": "Node.js", "category": "Frameworks", "years": 5 },
+  { "name": "Three.js", "category": "Frameworks", "years": 2 },
+  { "name": "Git", "category": "Tools", "years": 6 },
+  { "name": "Docker", "category": "Tools", "years": 3 },
+  { "name": "PostgreSQL", "category": "Tools", "years": 4 },
+  { "name": "Figma", "category": "Design", "years": 4 }
+]
