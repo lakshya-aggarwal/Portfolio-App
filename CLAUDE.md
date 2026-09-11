@@ -27,8 +27,10 @@ Icons: lucide-react. `@/*` maps to `./src/*`. Deployment target is static /
 Vercel; there is no backend.
 
 The site is deliberately lightweight: **no WebGL, no animation library, no MDX /
-content pipeline.** Runtime dependencies are just `next`, `react`, `react-dom`
-and `lucide-react`. Do not reintroduce a heavy motion or 3D stack without a
+content pipeline.** Runtime dependencies are `next`, `react`, `react-dom`,
+`lucide-react`, plus the small `class-variance-authority` / `clsx` /
+`tailwind-merge` utilities used by the vendored components under
+`src/components/ui/`. Do not reintroduce a heavy motion or 3D stack without a
 strong reason - the redesign removed exactly that (see `docs/design.md`).
 
 ## Architecture
