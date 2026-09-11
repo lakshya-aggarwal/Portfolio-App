@@ -83,7 +83,9 @@ export function CursorRibbon() {
           normal /= mix(1.0, max(0.3, dot(normal, vec2(-dir1.y, dir1.x))), uMiter);
           normal /= aspect;
           float pixelWidth = 1.0 / (uResolution.y / uDPR);
-          normal *= pixelWidth * uThickness;
+          // Taper the width head -> tail (uv.y: 0 = head) for a brush shape.
+          float widthTaper = 1.0 - uv.y * 0.8;
+          normal *= pixelWidth * uThickness * widthTaper;
           current.xy -= normal * side;
           return current;
         }
@@ -160,18 +162,35 @@ export function CursorRibbon() {
         attributeFilter: ["data-theme"],
       });
 
+      // Velocity-driven width: fast cursor motion fattens the ribbon, a still
+      // cursor lets it thin back down - so each gesture draws a different shape.
+      const lastMouse = new Vec3().copy(mouse);
+      let thickness = 3;
+      const baseThickness = 3;
+      const speedToWidth = 90; // clip-space units/frame -> extra px
+      const maxWidth = 26;
+
       const update = () => {
         raf = requestAnimationFrame(update);
+
+        // Frame-to-frame cursor speed (clip space), smoothed into the width.
+        const speed = Math.hypot(mouse.x - lastMouse.x, mouse.y - lastMouse.y);
+        lastMouse.copy(mouse);
+        const target = Math.min(baseThickness + speed * speedToWidth, maxWidth);
+        thickness += (target - thickness) * 0.18;
+        polyline.program.uniforms.uThickness.value = thickness;
+
         // High -> low so each point reads its predecessor's *previous* position,
-        // producing the trailing lag. Head chases the cursor.
+        // producing the trailing lag. Head pins tightly to the cursor for
+        // responsiveness; the tail follows.
         for (let i = points.length - 1; i >= 0; i--) {
           const p = points[i];
           if (!p) continue;
           if (i === 0) {
-            p.lerp(mouse, 0.7);
+            p.lerp(mouse, 0.9);
           } else {
             const prev = points[i - 1];
-            if (prev) p.lerp(prev, 0.55);
+            if (prev) p.lerp(prev, 0.62);
           }
         }
         polyline.updateGeometry();
