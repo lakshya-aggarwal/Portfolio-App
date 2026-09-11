@@ -53,7 +53,7 @@ touches the filesystem.
 `src/app/globals.css` defines two palettes swapped on `:root[data-theme]`:
 
 - **light (default)** - cool: cobalt `#0047AB` / azure `#007FFF` on light-gray `#EEF1F5`.
-- **dark (opt-in)** - warm: amber `#E9A23C` / burnt-orange `#E0692A` on espresso `#16110C`.
+- **dark (opt-in)** - warm: amber `#E9A23C` / burnt-orange `#E0692A` on near-black `#0B0B0D`.
 
 Light is the default for everyone. Dark is opt-in via `ThemeToggle`, stored in
 `localStorage`, and applied by the boot script in `layout.tsx` before first

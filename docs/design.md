@@ -37,7 +37,7 @@ they use the semantic utilities (`bg-ground`, `bg-surface`, `text-ink`,
 
 | Role | Token | Hex |
 | --- | --- | --- |
-| Canvas | `--sem-ground` | `#16110C` |
+| Canvas | `--sem-ground` | `#0B0B0D` |
 | Surface / cards | `--sem-surface` | `#211811` |
 | Hairline | `--sem-line` | `#362A1E` |
 | Ink | `--sem-ink` | `#F4EFE6` |

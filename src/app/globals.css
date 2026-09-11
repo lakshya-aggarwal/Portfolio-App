@@ -74,7 +74,7 @@
    remembered in localStorage. We deliberately do NOT auto-switch on
    prefers-color-scheme: the light palette is the primary identity. */
 :root[data-theme="dark"] {
-  --sem-ground: #16110c;
+  --sem-ground: #0b0b0d;
   --sem-surface: #211811;
   --sem-line: #362a1e;
   --sem-ink: #f4efe6;
