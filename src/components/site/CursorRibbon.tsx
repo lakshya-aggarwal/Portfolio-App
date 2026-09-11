@@ -119,8 +119,8 @@ export function CursorRibbon() {
         fragment,
         uniforms: {
           uColor: { value: new Color(accentHex()) },
-          uThickness: { value: 14 },
-          uOpacity: { value: 0.4 },
+          uThickness: { value: 5 },
+          uOpacity: { value: 0.7 },
         },
       });
       // Alpha blend so the neon reads on both the light and dark canvas.
