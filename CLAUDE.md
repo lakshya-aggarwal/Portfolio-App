@@ -8,140 +8,101 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev        # Next dev server (Turbopack)
 npm run build      # production build; typechecks and prerenders every route
 npm start          # serve the production build
-npm run lint       # eslint (flat config, eslint-config-next 16 native)
+npm run lint       # eslint (flat config, eslint-config-next native)
 npm run typecheck  # tsc --noEmit
 ```
 
 There is no test framework. `npm run build` plus `npm run lint` are the only
-correctness gates, and `noUnusedLocals`/`noUnusedParameters`/`noUncheckedIndexedAccess`
-are on, so they catch more than they look like they will.
-
-**Verify the WebGL work against a production build, not `npm run dev`.** React
-StrictMode double-mounts in development, which makes React Three Fiber lose its
-WebGL context - the canvas renders nothing and the console logs
-`THREE.WebGLRenderer: Context Lost`. That is a dev-only artifact. Use
-`npm run build && npx next start -p 3001` to see the real behaviour.
+correctness gates, and `noUnusedLocals` / `noUnusedParameters` /
+`noUncheckedIndexedAccess` are on, so they catch more than they look like they
+will. If a stale route type lingers in `.next/` after deleting a page, `rm -rf
+.next` and rebuild.
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · TypeScript strict · Tailwind v4 (CSS-first,
-no JS config) · Lenis · React Three Fiber + drei · MDX + Zod.
-`@/*` maps to `./src/*`. Deployment target is static/Vercel; there is no backend.
+Next.js 16 (App Router) - React 19 - TypeScript strict - Tailwind v4 (CSS-first,
+no JS config). Fonts: Balboa (display) and Shadows Into Light (script accent)
+from an Adobe Fonts / Typekit kit, plus Hanken Grotesk (body) via next/font.
+Icons: lucide-react. `@/*` maps to `./src/*`. Deployment target is static /
+Vercel; there is no backend.
 
-Notably **not** installed: no animation library. Scroll-linked motion is driven
-by CSS custom properties written from one rAF loop (see below), and `motion` was
-removed after measuring it at ~40KB gzipped on the critical path for four small
-effects.
+The site is deliberately lightweight: **no WebGL, no animation library, no MDX /
+content pipeline.** Runtime dependencies are just `next`, `react`, `react-dom`
+and `lucide-react`. Do not reintroduce a heavy motion or 3D stack without a
+strong reason - the redesign removed exactly that (see `docs/design.md`).
 
-## Layer architecture
+## Architecture
 
-The rule that keeps this honest: **a layer may only import from layers beneath
-it.** Sections read content and tokens; motion primitives never read content;
-nothing below the route layer contains a content literal or a timing number.
+A single-page portfolio. Layers, each importing only from beneath it:
 
 | Layer | Location | Owns |
 | --- | --- | --- |
-| L6 routes/shell | `src/app/` | fonts, theme boot, metadata, the scroll provider, cursor. The only layer that touches the filesystem. |
-| L5 sections | `src/components/sections/` | composition only; everything arrives as props |
-| L4 primitives | `src/components/ui/`, `src/components/common/` | shadcn primitives (forwardRef + cva + `cn()`) |
-| L3 WebGL | `src/gl/` | the one `<Canvas>`, lazy, never server-rendered |
-| L2 motion | `src/motion/` | scroll signal, reveal, cursor, and the motion vocabulary |
-| L1 content | `src/lib/content.ts`, `src/lib/schema.ts`, `content/` | MDX + Zod; fails the build, not the page |
-| L0 tokens | `src/app/globals.css` | colour, easing, timing, grid |
+| Shell | `src/app/layout.tsx` | fonts, theme boot, nav, footer, metadata |
+| Route | `src/app/page.tsx` | composes the sections; `not-found.tsx` is the 404 |
+| Sections | `src/components/sections/` | Hero, Experience, About, Contact |
+| Site chrome | `src/components/site/` | Nav, Footer, ThemeToggle |
+| Motion | `src/motion/` | Reveal (the one house animation) + tokens |
+| Content | `src/lib/profile.ts`, `src/lib/site.ts` | static profile data and links |
+| Tokens | `src/app/globals.css` | colour, type scale, easing, spacing |
 
-### The scroll signal
+All content is static in `src/lib/`, so every route prerenders and no section
+touches the filesystem.
 
-`src/motion/SmoothScroll.tsx` is the only scroll loop in the app. Lenis publishes
-two CSS custom properties on `<html>`:
+## Theme and tokens (L0)
 
-- `--scroll-progress` - 0..1 down the document
-- `--scroll-velocity` - signed, roughly -60..60
+`src/app/globals.css` defines two palettes swapped on `:root[data-theme]`:
 
-CSS consumes them directly (the reading-position bar in `Nav`, `.velocity-skew`
-in `globals.css`), so scroll-linked effects cost **zero React renders**. JS
-consumers that need the numbers - shader uniforms, for instance - read them from
-the ref via `useScrollSignal()` inside their own frame loop. Never read that ref
-during render.
+- **light (default)** - cool: cobalt `#0047AB` / azure `#007FFF` on light-gray `#EEF1F5`.
+- **dark (opt-in)** - warm: amber `#E9A23C` / burnt-orange `#E0692A` on espresso `#16110C`.
 
-### Motion vocabulary
+Light is the default for everyone. Dark is opt-in via `ThemeToggle`, stored in
+`localStorage`, and applied by the boot script in `layout.tsx` before first
+paint. We deliberately do **not** auto-switch on `prefers-color-scheme`: the
+light palette is the primary identity. `src/lib/media.ts` (`useTheme`) reads the
+theme as an external store, never via setState-in-an-effect.
 
-`src/motion/tokens.ts` holds every easing, duration, spring and stagger. A
-component writing `duration: 0.4` inline is the drift that file exists to
-prevent. The four easings are mirrored in `globals.css` for CSS transitions -
-those are the only duplicated values in the system; change both or neither.
+Components only ever use the semantic utilities (`text-ink`, `text-ink-dim`,
+`bg-surface`, `border-line`, `bg-accent`, `text-accent`, `text-accent-ink`), the
+type scale (`text-h1/h2/h3/lead`), and the fonts (`font-display`, `font-body`).
+
+## Fonts
+
+The Typekit kit is linked in `layout.tsx`'s `<head>`
+(`https://use.typekit.net/sam4epv.css`). Family names: `"balboa"` (display,
+weights 300/700/900) and `"shadows-into-light"` (script). The `@theme` block maps
+them to `--font-display` and `--font-script`; body is `--font-body` (Hanken
+Grotesk, self-hosted via next/font). The `.kicker` class is the handwritten
+section accent.
 
 ## Rules with teeth
 
-These each cost real debugging time. Breaking them reintroduces a shipped bug.
+These each cost real debugging time; breaking them reintroduces a shipped bug.
 
 **Never use bare `text-[var(--foo)]` in Tailwind v4.** It is ambiguous between
-font-size and color, and Tailwind's type inference picks wrong - silently. It
-broke every heading size *and* every link colour on the site. Use the
-theme-generated utilities (`text-h1`, `text-ink-dim`, `bg-surface`, `border-line`)
-which are declared in the `@theme` block, or an explicit hint like
+font-size and color and Tailwind infers wrong, silently. Use the theme-generated
+utilities (`text-ink`, `text-accent`, `text-h1`, ...) or an explicit hint like
 `text-(length:--text-h1)`.
 
 **Base element styles must live inside `@layer base`.** Unlayered CSS beats
-everything inside `@layer utilities`, so a bare `a { color: inherit }` after
-`@import "tailwindcss"` silently killed every colour utility on every link.
-Component classes (`.shell`, `.eyebrow`, `.skip`, `.velocity-skew`) go in
-`@layer components` so utilities can still override them.
+everything in `@layer utilities`, so a bare `a { color: inherit }` outside a
+layer silently kills every colour utility on every link. Component classes
+(`.shell`, `.kicker`, `.eyebrow`, `.skip`) go in `@layer components`.
 
 **Content is visible at rest.** `src/motion/Reveal.tsx` renders children with no
-hidden styling server-side, then arms the hidden state in a `useLayoutEffect`
-(before paint) only for elements below the fold, and has a 4s failsafe. The
-earlier version used `initial={{opacity: 0}}`, which server-renders `opacity: 0`
- - so no-JS visitors, crawlers, printers and full-page screenshots all saw a blank
-page. Any new reveal must keep this property.
+hidden styling server-side, arms the hidden state in a `useLayoutEffect` (before
+paint) only for elements below the fold, and has a 4s failsafe. Any new reveal
+must keep this - the earlier `initial={{opacity:0}}` approach server-rendered a
+blank page for no-JS visitors, crawlers and printers.
 
-**One `<Canvas>` per document.** Each extra canvas is another WebGL context, and
-several will thermally throttle a mid-range phone. Portal additional scenes with
-drei's `<View>`.
-
-**Media queries and the theme are external stores, not state.** Use
-`useMediaQuery`/`useTheme` from `src/lib/media.ts` (`useSyncExternalStore`).
-Reading them via `setState` in an effect trips `react-hooks/set-state-in-effect`
-and causes a cascading render on mount.
-
-**Reduced motion is a branch, not a dimmer.** Lenis is not constructed, the
-cursor never mounts, reveals render immediately, and the skew is zeroed. Check
-`globals.css`'s reduced-motion block and the three `matchMedia` guards in
-`src/motion/` when adding anything animated.
+**Reduced motion is honoured.** `globals.css` has a `prefers-reduced-motion`
+block that forces reveals visible and zeroes transitions. Keep animated additions
+inside that contract.
 
 ## Content
 
-Projects are `content/projects/<slug>/index.mdx` with Zod-validated frontmatter;
-covers are served from `public/media/<slug>/cover.jpg` and **measured on disk** at
-build time by `src/lib/content.ts`, so `next/image` always gets true intrinsic
-dimensions (this is the CLS fix - don't hand-write dimensions into frontmatter).
-`status: draft` keeps a project out of `getProjects()` entirely.
+`src/lib/profile.ts` is the single source for experience, skills, certifications,
+education and the GitHub repo strip. `src/lib/site.ts` holds identity, nav and
+social links. Edit these, not the components. The section content is real (drawn
+from the resume and public GitHub) - do not invent projects or roles.
 
-`stack` values must come from the `TECH` enum in `src/lib/schema.ts`; the filter
-chips are derived from what projects actually use, via `getUsedTech()`.
-
-**The four projects are placeholder content** carried over from the original
-build (Lumina/Flux/Prism/Vertex, with stock cover photos and example.com links).
-Replace them with real work before this goes anywhere public.
-
-## Runtime notes
-
-There is deliberately **no first-load JavaScript budget** on this project, and
-one should not be reintroduced. The site's whole purpose is to be memorable and
-physically expressive, so animation and 3D work take priority over shaving
-kilobytes. Do not remove a motion or WebGL library to save bytes, and do not
-gate a feature on bundle size.
-
-What does still matter is *frame* cost, which serves the motion rather than
-fighting it:
-
-- DPR capped at 1.5 for the relief backdrop: it is a full-viewport fragment
-  shader and the low-frequency gradient wash gains nothing above that.
-- three.js loads through `next/dynamic(..., { ssr: false })` (see
-  `BackdropMount`). That is about not blocking first paint, not about total size.
-- One WebGL context exists: the fixed relief backdrop. A new scene should portal
-  through drei's `<View>` into that canvas rather than mounting a second one.
-
-## `legacy/`
-
-The pre-rebuild Vite app, moved aside rather than deleted so the old markup stays
-readable. It is excluded from tsconfig, eslint and the build. Safe to delete.
+`public/resume.pdf` backs the "Résumé" download.
