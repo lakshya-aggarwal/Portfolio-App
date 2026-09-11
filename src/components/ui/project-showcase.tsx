@@ -75,7 +75,7 @@ export function ProjectShowcase({ items }: { items: ShowcaseItem[] }) {
   }
 
   return (
-    <div ref={containerRef} onMouseMove={handleMouseMove} className="relative w-full max-w-2xl">
+    <div ref={containerRef} onMouseMove={handleMouseMove} className="relative w-full">
       {/* Cursor-following preview */}
       <div
         className="pointer-events-none fixed z-50 hidden overflow-hidden rounded-xl shadow-2xl md:block"
@@ -121,7 +121,7 @@ export function ProjectShowcase({ items }: { items: ShowcaseItem[] }) {
         </div>
       </div>
 
-      <div className="space-y-0">
+      <div className="grid grid-cols-1 gap-x-10 sm:grid-cols-2">
         {items.map((item, index) => {
           const external = item.href.startsWith("http")
           return (
@@ -184,7 +184,6 @@ export function ProjectShowcase({ items }: { items: ShowcaseItem[] }) {
             </a>
           )
         })}
-        <div className="border-t border-border" />
       </div>
     </div>
   )

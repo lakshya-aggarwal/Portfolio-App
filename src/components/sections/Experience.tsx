@@ -11,8 +11,10 @@ export function Experience() {
   const timelineData: TimelineEntry[] = experience.map((e) => ({
     // The period is the sticky "year" label; role and detail scroll past it.
     title: e.period,
+    // key on this element: it is created inside experience.map() and passed to
+    // the (client) Timeline, so React wants a key to treat the set as a list.
     content: (
-      <div className="pb-2">
+      <div key={e.org} className="pb-2">
         <h3 className="font-display text-h3 uppercase leading-none text-ink">
           {e.role}
         </h3>
