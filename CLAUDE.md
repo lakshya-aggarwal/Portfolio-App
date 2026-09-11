@@ -25,7 +25,7 @@ WebGL context - the canvas renders nothing and the console logs
 ## Stack
 
 Next.js 16 (App Router) · React 19 · TypeScript strict · Tailwind v4 (CSS-first,
-no JS config) · Lenis · React Three Fiber + drei + Rapier · MDX + Zod.
+no JS config) · Lenis · React Three Fiber + drei · MDX + Zod.
 `@/*` maps to `./src/*`. Deployment target is static/Vercel; there is no backend.
 
 Notably **not** installed: no animation library. Scroll-linked motion is driven
@@ -98,10 +98,6 @@ page. Any new reveal must keep this property.
 several will thermally throttle a mid-range phone. Portal additional scenes with
 drei's `<View>`.
 
-**Don't texture a `RoundedBox`.** Its UVs wrap the whole solid, so a face-mapped
-texture comes out smeared and clipped. Put the label on its own `planeGeometry`
-in front of the stone - that is why `Assembly` has a separate label mesh.
-
 **Media queries and the theme are external stores, not state.** Use
 `useMediaQuery`/`useTheme` from `src/lib/media.ts` (`useSyncExternalStore`).
 Reading them via `setState` in an effect trips `react-hooks/set-state-in-effect`
@@ -121,8 +117,7 @@ dimensions (this is the CLS fix - don't hand-write dimensions into frontmatter).
 `status: draft` keeps a project out of `getProjects()` entirely.
 
 `stack` values must come from the `TECH` enum in `src/lib/schema.ts`; the filter
-chips and the physics tiles are both derived from what projects actually use, via
-`getUsedTech()`.
+chips are derived from what projects actually use, via `getUsedTech()`.
 
 **The four projects are placeholder content** carried over from the original
 build (Lumina/Flux/Prism/Vertex, with stock cover photos and example.com links).
@@ -139,16 +134,12 @@ gate a feature on bundle size.
 What does still matter is *frame* cost, which serves the motion rather than
 fighting it:
 
-- Physics bodies capped at 14 desktop / 8 mobile; Rapier sleeps them at rest.
-- DPR capped at 2 for the Assembly, 1.5 for the relief backdrop (a full-viewport
-  fragment shader with three fbm taps per pixel gains nothing above that).
-- Canvases pause when scrolled offscreen and when the tab is hidden -
-  `frameloop` drops to `"demand"` and physics pauses.
-- three.js and Rapier still load through `next/dynamic(..., { ssr: false })`.
-  That is about not blocking first paint, not about total size.
-- Two WebGL contexts exist: the fixed relief backdrop and the Assembly. Adding
-  more means portalling through drei's `<View>` into one of them rather than
-  mounting a third canvas.
+- DPR capped at 1.5 for the relief backdrop: it is a full-viewport fragment
+  shader and the low-frequency gradient wash gains nothing above that.
+- three.js loads through `next/dynamic(..., { ssr: false })` (see
+  `BackdropMount`). That is about not blocking first paint, not about total size.
+- One WebGL context exists: the fixed relief backdrop. A new scene should portal
+  through drei's `<View>` into that canvas rather than mounting a second one.
 
 ## `legacy/`
 

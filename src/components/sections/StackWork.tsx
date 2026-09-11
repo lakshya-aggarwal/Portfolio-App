@@ -1,24 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import dynamic from "next/dynamic";
 import { ProjectRail } from "@/components/common/ProjectRail";
 import { SplitText } from "@/motion/SplitText";
 import type { Project, Skill } from "@/lib/schema";
 
 /**
  * The stack and the work are one component because they share one piece of
- * state: the selected technology. Grabbing a tile in the canvas and pressing a
- * chip in the DOM are the same action.
- *
- * The canvas is loaded lazily and never server-rendered - three.js and Rapier's
- * WASM must not be in the first-paint path.
+ * state: the selected technology. The chips filter the work below.
  */
-const Assembly = dynamic(() => import("@/gl/Assembly"), {
-  ssr: false,
-  loading: () => null,
-});
-
 type Props = {
   projects: Project[];
   tech: { tech: string; count: number }[];
@@ -50,28 +40,16 @@ export function StackWork({ projects, tech, skills }: Props) {
         <div className="shell">
           <p className="eyebrow">Stack</p>
           <SplitText as="h2" className="block max-w-[26ch] pt-8 text-h2">
-            Grab a stone. It filters the work.
+            The stack behind the work.
           </SplitText>
           <p className="max-w-[52ch] pt-5 text-ink-dim">
-            Everything I actually build with, given mass. Throw them around, or
-            use the buttons below if you would rather just get on with it.
+            Everything I actually build with. Pick a technology to filter the
+            selected work below by what each project actually uses.
           </p>
         </div>
 
-        {/* The simulation. Decorative and duplicated by the chips below. */}
-        <div className="relative mt-10 h-[40vh] min-h-[280px] w-full overflow-hidden border-y border-line bg-surface md:h-[44vh]">
-          <Assembly
-            tech={tech.map((t) => t.tech)}
-            selected={selected}
-            onSelect={toggle}
-          />
-          <p className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-ink-dim">
-            Drag · throw · tap to filter
-          </p>
-        </div>
-
-        {/* The accessible path: real buttons, keyboard reachable, announced. */}
-        <div className="shell pt-8">
+        {/* Real buttons, keyboard reachable, announced. */}
+        <div className="shell pt-10">
           <div
             role="group"
             aria-label="Filter work by technology"
