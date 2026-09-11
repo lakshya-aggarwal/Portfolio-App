@@ -1,6 +1,6 @@
 /**
  * Identity, links and nav in one place, so a changed handle is a one-line diff.
- * Richer profile data (experience, skills, repos) lives in ./profile.ts.
+ * Richer profile data (experience, repos) lives in ./profile.ts.
  */
 export const site = {
   name: "Lakshya Aggarwal",

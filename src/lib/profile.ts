@@ -25,11 +25,6 @@ export type Repo = {
   image?: string;
 };
 
-export type SkillGroup = {
-  label: string;
-  items: string[];
-};
-
 export const about =
   "I'm a software engineer at Adobe, where I build demos and proofs-of-concept for enterprise Adobe tools and increasingly lean on AI to push what they can do. I'm a certified AEM and AEM Forms developer, and before Adobe I shipped a multi-locale CMS for Royal Enfield, an Android music app, and a handful of Django backends. I like turning fuzzy requirements into things people can actually use.";
 
@@ -88,24 +83,9 @@ export const experience: Experience[] = [
   },
 ];
 
-export const skills: SkillGroup[] = [
-  { label: "Languages", items: ["Java", "JavaScript", "TypeScript", "Python", "C++"] },
-  { label: "Platforms", items: ["Adobe Experience Manager", "AEM Forms", "Android", "Node.js"] },
-  { label: "Web", items: ["React", "Next.js", "Django", "Tailwind"] },
-  { label: "Tools & Infra", items: ["Docker", "Kubernetes", "Git", "MySQL", "MongoDB"] },
-];
-
 export const certifications: string[] = [
   "Adobe Certified Expert — AEM Sites Developer",
   "Adobe Certified Expert — AEM Forms Developer",
-];
-
-export const education = [
-  {
-    school: "Maharashtra Institute of Technology, Pune",
-    detail: "B.E. Computer Science",
-    period: "2012 — 2017",
-  },
 ];
 
 export const repos: Repo[] = [
