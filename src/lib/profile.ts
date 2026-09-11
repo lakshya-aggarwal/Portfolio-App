@@ -19,6 +19,10 @@ export type Repo = {
   href: string;
   note: string;
   language: string;
+  /** Optional local screenshot for the showcase hover preview, e.g.
+   *  "/showcase/pdol-demo.jpg". Drop the file in public/showcase/ and set this;
+   *  until then the showcase renders a themed fallback panel. No external URLs. */
+  image?: string;
 };
 
 export type SkillGroup = {

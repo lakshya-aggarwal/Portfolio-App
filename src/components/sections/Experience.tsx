@@ -1,5 +1,5 @@
-import { ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/motion/Reveal";
+import { ProjectShowcase } from "@/components/ui/project-showcase";
 import { experience, repos } from "@/lib/profile";
 
 /**
@@ -57,33 +57,17 @@ export function Experience() {
         <p className="kicker">open source</p>
         <h2 className="mt-2 font-display text-h2 uppercase">On GitHub</h2>
 
-        <ul className="mt-10 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2">
-          {repos.map((r, i) => (
-            <Reveal as="li" index={i} key={r.name}>
-              <a
-                href={r.href}
-                target="_blank"
-                rel="noreferrer"
-                className="group flex h-full flex-col rounded-2xl border border-line bg-surface p-5 transition-colors duration-300 hover:border-accent/50"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-display text-h3 uppercase leading-none">
-                    {r.name}
-                  </span>
-                  <ArrowUpRight
-                    className="size-4 shrink-0 text-ink-dim transition-transform duration-300 ease-[var(--e-out)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent"
-                    strokeWidth={2}
-                    aria-hidden="true"
-                  />
-                </div>
-                <p className="mt-3 grow text-[0.92rem] text-ink-dim">{r.note}</p>
-                <span className="mt-4 font-mono text-[0.66rem] uppercase tracking-[0.12em] text-ink-dim">
-                  {r.language}
-                </span>
-              </a>
-            </Reveal>
-          ))}
-        </ul>
+        <Reveal className="mt-10">
+          <ProjectShowcase
+            items={repos.map((r) => ({
+              title: r.name,
+              description: r.note,
+              meta: r.language,
+              href: r.href,
+              image: r.image,
+            }))}
+          />
+        </Reveal>
       </div>
     </section>
   );
