@@ -234,10 +234,14 @@
      paint, so no-JS, print and crawlers always get readable text. */
   .split-mask {
     display: inline-block;
-    overflow: hidden;
     vertical-align: bottom;
     padding-bottom: 0.12em;
     margin-bottom: -0.12em;
+    /* Clip ONLY the bottom edge, so the word is hidden until it rises out of
+       the mask - but italic ascenders (the d in "hold") and glyph overhangs are
+       never cropped on the top or sides. Negative insets extend the visible
+       region past the box; a plain overflow:hidden clips all four sides. */
+    clip-path: inset(-0.4em -0.4em 0 -0.4em);
   }
   .split-part {
     display: inline-block;
