@@ -5,8 +5,6 @@ const config = [
   {
     ignores: [
       ".next/**",
-      "dist/**", // stale Vite output from before the rebuild
-      "legacy/**", // pre-rebuild app, kept for reference
       ".claude/**", // vendored skill assets, not our source
       "graphify-out/**",
       "node_modules/**",
