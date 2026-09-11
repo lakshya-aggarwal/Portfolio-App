@@ -96,7 +96,7 @@
   --t-base: 420ms;
   --t-slow: 800ms;
 
-  --g-max: 78rem;
+  --g-max: 64rem;
   --g-margin: clamp(1.25rem, 5vw, 3rem);
 }
 
