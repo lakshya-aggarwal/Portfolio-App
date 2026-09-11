@@ -93,24 +93,24 @@ export function CursorRibbon() {
         }
       `;
 
-      // Bright core -> feathered edges across the width (vUv.x), dissolving tail
-      // along the length (vUv.y, 0 = head at the cursor). Core lifts toward white
-      // for the hot neon centre.
+      // Subtle flat accent stroke: soft feathered edges across the width
+      // (vUv.x) and a tail that dissolves along the length (vUv.y, 0 = head at
+      // the cursor). No white core, low overall opacity - a quiet ink line, not
+      // a neon tube.
       const fragment = /* glsl */ `
         precision highp float;
         uniform vec3 uColor;
+        uniform float uOpacity;
         varying vec2 vUv;
         void main() {
           float edge = 1.0 - abs(vUv.x - 0.5) * 2.0;
-          float glow = smoothstep(0.0, 1.0, edge);
+          float shape = smoothstep(0.0, 0.5, edge);
           float taper = 1.0 - vUv.y;
-          float alpha = glow * taper;
-          vec3 col = mix(uColor, vec3(1.0), pow(edge, 4.0) * 0.5);
-          gl_FragColor = vec4(col, alpha);
+          gl_FragColor = vec4(uColor, shape * taper * uOpacity);
         }
       `;
 
-      const count = 30;
+      const count = 22;
       const points = Array.from({ length: count }, () => new Vec3());
 
       const polyline = new Polyline(gl, {
@@ -119,7 +119,8 @@ export function CursorRibbon() {
         fragment,
         uniforms: {
           uColor: { value: new Color(accentHex()) },
-          uThickness: { value: 22 },
+          uThickness: { value: 14 },
+          uOpacity: { value: 0.4 },
         },
       });
       // Alpha blend so the neon reads on both the light and dark canvas.
@@ -167,10 +168,10 @@ export function CursorRibbon() {
           const p = points[i];
           if (!p) continue;
           if (i === 0) {
-            p.lerp(mouse, 0.4);
+            p.lerp(mouse, 0.7);
           } else {
             const prev = points[i - 1];
-            if (prev) p.lerp(prev, 0.45);
+            if (prev) p.lerp(prev, 0.55);
           }
         }
         polyline.updateGeometry();
