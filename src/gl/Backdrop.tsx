@@ -9,12 +9,12 @@ import { useMediaQuery, useTheme } from "@/lib/media";
 import { reliefFragment, reliefVertex } from "@/gl/relief.glsl";
 
 /**
- * L3 - the ambient relief backdrop. A fixed, full-viewport shader behind all
- * page content, warped by scroll velocity.
+ * L3 - the ambient backdrop. A fixed, full-viewport shader behind all page
+ * content: a soft gradient wash that warms faintly with scroll velocity.
  *
  * It reads the scroll signal from the same ref the Lenis loop writes, inside
  * useFrame, so it never triggers a React render. Velocity is smoothed again
- * here because the raw Lenis value is spiky enough to make the shear judder.
+ * here because the raw Lenis value is spiky enough to make the warmth flicker.
  *
  * Pointer events are off and it is aria-hidden: this layer is atmosphere, it
  * carries no information.
@@ -122,8 +122,8 @@ export default function Backdrop() {
       className="pointer-events-none fixed inset-0 -z-10 print:hidden"
     >
       <Canvas
-        // 1.5 rather than 2: this is a full-viewport fragment shader with three
-        // fbm taps per pixel, and the extra resolution buys nothing visible.
+        // 1.5 rather than 2: this is a full-viewport fragment shader and the
+        // wash is low-frequency, so the extra resolution buys nothing visible.
         dpr={[1, 1.5]}
         gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
         style={{ width: "100%", height: "100%" }}

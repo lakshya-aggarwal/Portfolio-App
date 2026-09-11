@@ -1,9 +1,10 @@
 /**
- * L3 - the relief backdrop's shader pair.
+ * L3 - the ambient backdrop's shader pair.
  *
- * This is the reference site's `relief-bg` idea: a stone surface whose ridges
- * warp in proportion to how hard you are scrolling. Still when still, molten
- * when you throw the page.
+ * A soft, large-scale gradient wash: two low-frequency noise octaves drifting
+ * slowly, nudging the ground colour toward the ridge tone in big gentle blooms,
+ * finished with a vignette and fine film grain. Atmosphere, not texture - it
+ * warms faintly under scroll velocity but never resolves into its own shape.
  *
  * Kept as a TS module rather than a .glsl file so it needs no loader and stays
  * type-checked at the call site.
@@ -54,68 +55,48 @@ export const reliefFragment = /* glsl */ `
       u.y);
   }
 
-  float fbm(vec2 p) {
-    float v = 0.0;
-    float a = 0.5;
-    for (int i = 0; i < 5; i++) {
-      v += a * noise(p);
-      p = p * 2.03 + 17.3;
-      a *= 0.5;
-    }
-    return v;
-  }
-
-  // Height field: domain-warped fbm. The warp amount is what the scroll
-  // velocity drives, so fast scrolling shears the ridges.
-  float height(vec2 p, float shear) {
-    vec2 warp = vec2(fbm(p + vec2(0.0, uTime * 0.015)),
-                     fbm(p + vec2(5.2, -uTime * 0.011)));
-    return fbm(p + warp * (0.42 + shear));
+  // Two low-frequency octaves only: large, soft blooms - atmosphere, not
+  // texture. The whole point of the redesign is that features stay big enough
+  // that the eye never resolves them into noise.
+  float wash(vec2 p) {
+    float v = noise(p);
+    v += 0.5 * noise(p * 2.1 + 11.0);
+    return v / 1.5; // roughly -1..1
   }
 
   void main() {
-    // Correct for aspect so ridges don't stretch on wide viewports.
+    // Correct for aspect so blooms don't stretch on wide viewports.
     float aspect = uResolution.x / max(uResolution.y, 1.0);
-    vec2 p = vec2(vUv.x * aspect, vUv.y) * 2.6;
+    vec2 p = vec2(vUv.x * aspect, vUv.y);
 
-    // Parallax: the field drifts slower than the page.
-    p.y -= uScroll * 1.35;
+    // Very low spatial frequency + slow drift and a gentle scroll parallax.
+    vec2 q = p * 1.15 + vec2(uTime * 0.010, uTime * 0.006 - uScroll * 0.35);
 
-    float shear = clamp(abs(uVelocity) * 0.016, 0.0, 0.7);
-    float h = height(p, shear);
+    float lift = wash(q) * 0.5 + 0.5; // 0..1, smooth
 
-    // Cheap surface normal from two extra taps, for a raking side light.
-    float e = 0.0055;
-    float hx = height(p + vec2(e, 0.0), shear);
-    float hy = height(p + vec2(0.0, e), shear);
-    vec3 n = normalize(vec3(h - hx, h - hy, e * 1.7));
+    // A soft vertical gradient so the head of the page is a touch lighter than
+    // the foot - depth with no hard edge.
+    float grad = smoothstep(-0.2, 1.15, vUv.y);
 
-    vec3 lightDir = normalize(vec3(-0.55, 0.72, 0.42));
-    float lambert = max(dot(n, lightDir), 0.0);
-    float spec = pow(lambert, 9.0) * 0.35;
+    // The wash only nudges the ground colour a small, intensity-scaled amount;
+    // it never becomes its own shape.
+    float amount = (grad * 0.5 + lift * 0.5) * 0.4 * uIntensity;
+    vec3 col = mix(uGround, uRidge, amount);
 
-    // Ridge mask: emphasise the creases rather than the flats.
-    float ridge = smoothstep(0.03, 0.42, abs(h));
+    // A whisper of accent that warms the page broadly under motion, rather than
+    // pinned to any feature.
+    float heat = clamp(abs(uVelocity) * 0.010, 0.0, 0.5);
+    col = mix(col, uAccent, lift * heat * 0.18 * uIntensity);
 
-    vec3 col = uGround;
-    // Ridges carry the whole effect, so they get most of the contrast budget.
-    col = mix(col, uRidge, ridge * (0.55 + lambert * 0.85) * uIntensity);
-    col += spec * uIntensity * 1.4;
-
-    // A whisper of the signal colour in the deepest creases, and a little more
-    // of it the faster you scroll - the page warms up under motion.
-    float heat = clamp(abs(uVelocity) * 0.012, 0.0, 0.55);
-    col = mix(col, uAccent, ridge * heat * 0.32 * uIntensity);
-
-    // Vignette keeps the centre calmer behind running text without erasing the
-    // relief there - at 0.55 it flattened the whole visible field to ground.
+    // Vignette keeps the corners from lifting and frames the content.
     vec2 c = vUv - 0.5;
-    float vig = smoothstep(0.10, 0.85, length(c));
-    col = mix(col, uGround, (1.0 - vig) * 0.34);
+    float vig = smoothstep(0.25, 0.95, length(c));
+    col = mix(col, uGround, vig * 0.30 * uIntensity);
 
-    // Dither: 8-bit gradients on a near-black field band badly otherwise.
-    float dither = (fract(sin(dot(vUv * uResolution, vec2(12.9898, 78.233))) * 43758.5453) - 0.5) / 255.0;
-    col += dither;
+    // Fine animated film grain - carries the "atmosphere" the flat wash lacks,
+    // and doubles as dither so near-black gradients don't band on 8-bit.
+    float g = fract(sin(dot(vUv * uResolution + uTime, vec2(12.9898, 78.233))) * 43758.5453);
+    col += (g - 0.5) * 0.012 * uIntensity;
 
     gl_FragColor = vec4(col, 1.0);
   }
