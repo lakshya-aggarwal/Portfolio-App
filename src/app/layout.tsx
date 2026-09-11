@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Nav } from "@/components/site/Nav";
 import { Footer } from "@/components/site/Footer";
+import { CursorRibbon } from "@/components/site/CursorRibbon";
 import { site } from "@/lib/site";
 
 /**
@@ -58,6 +59,7 @@ export default function RootLayout({
         <a className="skip" href="#main">
           Skip to content
         </a>
+        <CursorRibbon />
         <Nav />
         <main id="main">{children}</main>
         <Footer />

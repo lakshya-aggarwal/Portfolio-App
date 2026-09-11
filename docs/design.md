@@ -8,8 +8,9 @@ reference for the visual language; the tokens themselves live in
 
 - **Light-first, refreshing.** A calm light canvas is the primary identity; dark
   is an opt-in alternative, not the default.
-- **Lightweight.** No WebGL, no animation library, no heavy runtime. Motion is
-  one subtle reveal. Runtime deps are `next`, `react`, `react-dom`, `lucide-react`.
+- **Lightweight.** No animation library, no heavy runtime. Motion is one subtle
+  reveal. Runtime deps are `next`, `react`, `react-dom`, `lucide-react` and `ogl`
+  (the last only for the cursor ribbon - see Motion).
 - **Honest content.** Real experience and real repos; no invented products.
 - **Type does the work.** A bold condensed display face carries the personality;
   colour is used sparingly, as accent.
@@ -89,6 +90,15 @@ do not invent sizes off the scale.
 One reveal (`src/motion/Reveal.tsx`): a short opacity + translateY on scroll-in,
 staggered by index. Resting state is visible (SSR-safe). Buttons and cards have
 small hover transforms. Everything collapses under `prefers-reduced-motion`.
+
+**Cursor ribbon.** `src/components/site/CursorRibbon.tsx` draws a neon,
+accent-coloured WebGL ribbon that trails the pointer across the whole site (a
+fixed, `pointer-events-none` overlay beneath the nav). It is the one deliberate
+WebGL exception to "lightweight": built on `ogl` (~50KB, no deps), dynamically
+imported so it is code-split and never server-rendered, and gated to
+hover-capable fine-pointer devices with motion enabled - so touch/mobile and
+reduced-motion visitors get nothing and never download it. The ribbon colour is
+read from the live `--sem-accent` token and follows the theme toggle.
 
 ## Theming behaviour
 

@@ -26,12 +26,19 @@ from an Adobe Fonts / Typekit kit, plus Hanken Grotesk (body) via next/font.
 Icons: lucide-react. `@/*` maps to `./src/*`. Deployment target is static /
 Vercel; there is no backend.
 
-The site is deliberately lightweight: **no WebGL, no animation library, no MDX /
-content pipeline.** Runtime dependencies are just `next`, `react`, `react-dom`
-and `lucide-react`. Scroll-linked effects (e.g. the timeline beam in
+The site is deliberately lightweight: **no animation library, no MDX / content
+pipeline.** Runtime dependencies are `next`, `react`, `react-dom`,
+`lucide-react` and `ogl`. Scroll-linked effects (e.g. the timeline beam in
 `src/components/ui/timeline.tsx`) are done with a small rAF scroll handler rather
 than a motion library. Do not reintroduce a heavy motion or 3D stack without a
 strong reason - the redesign removed exactly that (see `docs/design.md`).
+
+**One deliberate WebGL exception:** `src/components/site/CursorRibbon.tsx` uses
+`ogl` (a ~50KB, zero-dependency WebGL lib) for a cursor-trailing ribbon. It is
+kept contained: OGL is dynamically `import()`ed inside the effect (code-split,
+never on the server), and the effect no-ops - and never downloads OGL - unless
+the device is hover-capable + fine-pointer with `prefers-reduced-motion` off. Do
+not add further WebGL/3D without the same containment and a comparable reason.
 
 ## Architecture
 
