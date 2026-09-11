@@ -1,73 +1,53 @@
 import Link from "next/link";
-import { ArrowDown, FileText } from "lucide-react";
-import { SplitText } from "@/motion/SplitText";
-import { Magnetic } from "@/motion/Magnetic";
+import { ArrowDown } from "lucide-react";
 import { Reveal } from "@/motion/Reveal";
 import { site } from "@/lib/site";
 
 /**
- * The hero is type-only by design: no canvas, no photograph. It is the LCP
- * element, so it paints on the first frame while the relief backdrop and the
- * physics scene load behind and below it.
- *
- * The entrance is one orchestrated sequence rather than four independent
- * effects - eyebrow, then the headline rising out of its mask word by word,
- * then the standfirst, then the controls.
+ * Type-only hero. It is the LCP element, so it ships fully legible on the first
+ * frame; the reveals below the fold arm themselves after paint.
  */
 export function Hero() {
   return (
-    <section className="shell pb-24 pt-36 md:pb-36 md:pt-44">
-      <SplitText as="p" className="eyebrow" delay={0.1} immediate>
-        {`${site.role} · Available for work`}
-      </SplitText>
-
-      <h1 className="max-w-[18ch] pt-6 text-mega" aria-label="Builds that hold weight.">
-        <SplitText as="span" className="block" delay={0.24} immediate>
-          Builds that
-        </SplitText>
-        <SplitText as="span" className="block italic" delay={0.4} immediate>
-          hold weight.
-        </SplitText>
-      </h1>
-
-      <Reveal distance={14}>
-        <p className="max-w-[54ch] pt-8 text-lead text-ink-dim">
-          I build interfaces that are fast on a mid-range phone, legible to a
-          screen reader, and physical enough that people remember them.
-          Currently working across React, Next.js and WebGL.
-        </p>
+    <section className="shell relative pb-20 pt-36 md:pb-28 md:pt-44">
+      <Reveal as="p" className="kicker">
+        hi, I&#39;m Lakshya
       </Reveal>
 
-      <Reveal distance={14} index={1}>
-        <div className="flex flex-wrap items-center gap-3 pt-10">
-          <Magnetic strength={6}>
-            <Link
-              href="/#work"
-              className="group inline-flex items-center gap-2 border border-ink bg-ink px-5 py-3 font-mono text-[0.72rem] uppercase tracking-[0.14em] text-ground transition-colors duration-200 hover:bg-transparent hover:text-ink"
-            >
-              See the work
-              <ArrowDown
-                className="size-3.5 transition-transform duration-300 ease-[var(--e-out)] group-hover:translate-y-0.5"
-                strokeWidth={2}
-                aria-hidden="true"
-              />
-            </Link>
-          </Magnetic>
-          <Magnetic strength={6}>
-            <a
-              href={site.resume}
-              download
-              className="inline-flex items-center gap-2 border border-line px-5 py-3 font-mono text-[0.72rem] uppercase tracking-[0.14em] text-ink-dim transition-colors duration-200 hover:border-ink hover:text-ink"
-            >
-              Résumé
-              <FileText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-            </a>
-          </Magnetic>
-          <p className="font-mono text-[0.66rem] uppercase tracking-[0.14em] text-ink-dim">
-            or press{" "}
-            <kbd className="border border-line px-1.5 py-0.5 not-italic">⌘K</kbd>
-          </p>
-        </div>
+      <h1 className="mt-3 max-w-[16ch] font-display text-h1 uppercase">
+        Software that ships,
+        <br className="hidden sm:block" /> and{" "}
+        <span className="text-accent">stays shipped.</span>
+      </h1>
+
+      <Reveal as="p" index={1} className="mt-8 max-w-[52ch] text-lead text-ink-dim">
+        {site.description} I turn fuzzy requirements into things people actually
+        use — across enterprise AEM, full-stack web, and Android.
+      </Reveal>
+
+      <Reveal
+        as="div"
+        index={2}
+        className="mt-10 flex flex-wrap items-center gap-3"
+      >
+        <Link
+          href="/#work"
+          className="group inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-[0.78rem] font-semibold uppercase tracking-[0.08em] text-accent-ink transition-transform duration-200 ease-[var(--e-out)] hover:-translate-y-0.5"
+        >
+          See my work
+          <ArrowDown
+            className="size-4 transition-transform duration-300 ease-[var(--e-out)] group-hover:translate-y-0.5"
+            strokeWidth={2}
+            aria-hidden="true"
+          />
+        </Link>
+        <a
+          href={site.resume}
+          download
+          className="inline-flex items-center gap-2 rounded-full border border-line px-6 py-3 text-[0.78rem] font-semibold uppercase tracking-[0.08em] text-ink transition-colors duration-200 hover:border-accent hover:text-accent"
+        >
+          Résumé
+        </a>
       </Reveal>
     </section>
   );

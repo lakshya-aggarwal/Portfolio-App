@@ -1,38 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Geist, Geist_Mono } from "next/font/google";
+import { Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
-import { SmoothScroll } from "@/motion/SmoothScroll";
-import { Cursor } from "@/motion/Cursor";
 import { Nav } from "@/components/site/Nav";
 import { Footer } from "@/components/site/Footer";
-import { Palette } from "@/components/site/Palette";
-import { RouteTransition } from "@/components/site/RouteTransition";
-// The relief backdrop is WebGL: never server-rendered, and it must not sit in
-// the first-paint path. The page is fully legible without it.
-import { BackdropMount } from "@/gl/BackdropMount";
 import { site } from "@/lib/site";
 
 /**
- * L6 - the shell. Owns fonts, theme, the scroll provider and the cursor.
- * Everything below this layer receives data and tokens; nothing below it
- * reaches for a global.
+ * L6 - the shell. Owns fonts, theme boot, nav and footer. Everything below
+ * receives data and tokens; nothing below reaches for a global.
+ *
+ * Display "balboa" and script "shadows-into-light" come from the Adobe Fonts
+ * (Typekit) kit linked in <head>; body is self-hosted Hanken Grotesk via
+ * next/font. The @theme block in globals.css maps these to --font-display /
+ * --font-script / --font-body.
  */
-
-// Self-hosted and pre-measured by next/font: no fallback flash, no layout shift.
-const fraunces = Fraunces({
+const body = Hanken_Grotesk({
   subsets: ["latin"],
-  axes: ["SOFT", "WONK", "opsz"],
-  variable: "--font-fraunces",
-  display: "swap",
-});
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist",
-  display: "swap",
-});
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-geist-mono",
+  variable: "--font-hanken",
   display: "swap",
 });
 
@@ -57,8 +41,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0b0b0d" },
-    { media: "(prefers-color-scheme: light)", color: "#e8e4dc" },
+    { media: "(prefers-color-scheme: dark)", color: "#16110c" },
+    { media: "(prefers-color-scheme: light)", color: "#eef1f5" },
   ],
 };
 
@@ -73,26 +57,20 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${geist.variable} ${geistMono.variable}`}
+      className={body.variable}
       suppressHydrationWarning
     >
       <head>
+        <link rel="stylesheet" href="https://use.typekit.net/sam4epv.css" />
         <script dangerouslySetInnerHTML={{ __html: themeBoot }} />
       </head>
       <body>
         <a className="skip" href="#main">
           Skip to content
         </a>
-        <SmoothScroll>
-          <BackdropMount />
-          <div aria-hidden="true" className="grain" />
-          <Cursor />
-          <Nav />
-          <main id="main">{children}</main>
-          <Footer />
-          <Palette />
-          <RouteTransition />
-        </SmoothScroll>
+        <Nav />
+        <main id="main">{children}</main>
+        <Footer />
       </body>
     </html>
   );

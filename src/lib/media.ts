@@ -11,19 +11,6 @@ import { useSyncExternalStore } from "react";
 
 const emptyUnsubscribe = () => {};
 
-export function useMediaQuery(query: string, serverValue = false): boolean {
-  return useSyncExternalStore(
-    (onChange) => {
-      if (typeof window === "undefined") return emptyUnsubscribe;
-      const mql = window.matchMedia(query);
-      mql.addEventListener("change", onChange);
-      return () => mql.removeEventListener("change", onChange);
-    },
-    () => window.matchMedia(query).matches,
-    () => serverValue,
-  );
-}
-
 export type Theme = "dark" | "light";
 
 /** Fires whenever this tab changes the theme, so every reader stays in sync. */
@@ -45,14 +32,11 @@ export function useTheme(): [Theme, (next: Theme) => void] {
       const explicit = document.documentElement.dataset.theme as
         | Theme
         | undefined;
-      if (explicit) return explicit;
-      return window.matchMedia("(prefers-color-scheme: light)").matches
-        ? "light"
-        : "dark";
+      // Light is the default; dark is opt-in and stored, applied by the boot
+      // script before first paint. We do not follow prefers-color-scheme.
+      return explicit ?? "light";
     },
-    // The site is dark by default, and the boot script in the layout applies any
-    // stored choice before first paint.
-    () => "dark",
+    () => "light",
   );
 
   const setTheme = (next: Theme) => {

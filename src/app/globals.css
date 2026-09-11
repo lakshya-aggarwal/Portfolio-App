@@ -1,23 +1,16 @@
 @import "tailwindcss";
 
 /* ============================================================
-   L0 - tokens. Nothing above this layer invents a colour,
-   a curve, a duration or a grid step.
+   L0 - tokens. Nothing above this layer invents a colour, a curve,
+   a duration or a grid step.
 
-   Motion curves are mirrored in src/motion/tokens.ts for the JS
-   animation layer. Those seven values are the only duplication in
-   the system; change both or neither.
+   Two themed palettes, swapped on :root[data-theme]:
+     light  - cool: cobalt / azure / slate on a light gray canvas
+     dark   - warm: amber / burnt-orange on espresso near-black
+   Motion easings are mirrored in src/motion/tokens.ts; change both or neither.
    ============================================================ */
 
 @theme {
-  /* stone family - dark ground, warm paper, one cool signal */
-  --color-obsidian: #0b0b0d;
-  --color-basalt: #191920;
-  --color-ash: #3b3b46;
-  --color-chalk: #e8e4dc;
-  --color-signal: #3f5bd6;
-  --color-ember: #c4622d;
-
   /* semantic aliases - components only ever use these */
   --color-ground: var(--sem-ground);
   --color-surface: var(--sem-surface);
@@ -25,77 +18,74 @@
   --color-ink: var(--sem-ink);
   --color-ink-dim: var(--sem-ink-dim);
   --color-accent: var(--sem-accent);
+  --color-accent-2: var(--sem-accent-2);
+  --color-accent-ink: var(--sem-accent-ink);
 
-  /* shadcn compatibility. The kept primitives (and anything added later, e.g.
-     `command` for the ⌘K palette) are written against these names, so they are
-     mapped onto the stone palette rather than left undefined - an unmapped
-     `bg-primary` renders as nothing at all. */
+  /* shadcn compatibility - kept ui primitives are written against these */
   --color-background: var(--sem-ground);
   --color-foreground: var(--sem-ink);
   --color-card: var(--sem-surface);
   --color-card-foreground: var(--sem-ink);
   --color-popover: var(--sem-surface);
   --color-popover-foreground: var(--sem-ink);
-  --color-primary: var(--sem-ink);
-  --color-primary-foreground: var(--sem-ground);
+  --color-primary: var(--sem-accent);
+  --color-primary-foreground: var(--sem-accent-ink);
   --color-secondary: var(--sem-surface);
   --color-secondary-foreground: var(--sem-ink);
   --color-muted: var(--sem-surface);
   --color-muted-foreground: var(--sem-ink-dim);
-  --color-accent-foreground: #ffffff;
+  --color-accent-foreground: var(--sem-accent-ink);
   --color-destructive: #b5432c;
   --color-destructive-foreground: #ffffff;
   --color-border: var(--sem-line);
   --color-input: var(--sem-line);
   --color-ring: var(--sem-accent);
 
-  --font-display: var(--font-fraunces), Georgia, serif;
-  --font-body: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /* Fonts. Display + script from the Adobe Fonts kit (see layout <head>);
+     body self-hosted via next/font. */
+  --font-display: "balboa", "Arial Narrow", sans-serif;
+  --font-script: "shadows-into-light", "Comic Sans MS", cursive;
+  --font-body: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* fluid type scale - every step is clamp()ed, nothing steps off it */
-  --text-eyebrow: 0.7rem;
+  /* fluid type scale */
   --text-micro: clamp(0.78rem, 0.76rem + 0.1vw, 0.84rem);
   --text-body: clamp(1rem, 0.97rem + 0.15vw, 1.08rem);
-  --text-lead: clamp(1.12rem, 1.02rem + 0.5vw, 1.4rem);
-  --text-h3: clamp(1.25rem, 1.1rem + 0.7vw, 1.6rem);
-  --text-h2: clamp(1.7rem, 1.3rem + 2vw, 2.9rem);
-  --text-h1: clamp(2.6rem, 1.4rem + 5.4vw, 6.5rem);
-  --text-mega: clamp(3.4rem, 1rem + 11vw, 11rem);
+  --text-lead: clamp(1.1rem, 1rem + 0.5vw, 1.35rem);
+  --text-h3: clamp(1.3rem, 1.15rem + 0.7vw, 1.7rem);
+  --text-h2: clamp(1.9rem, 1.4rem + 2.2vw, 3.2rem);
+  --text-h1: clamp(2.8rem, 1.5rem + 5.6vw, 6.5rem);
+  --text-mega: clamp(4rem, 1rem + 13vw, 13rem);
 }
 
-/* ---- theme: dark by default, this site has a dark identity ---- */
+/* ---- theme: LIGHT by default (cool), DARK on demand (warm) ---- */
 :root {
-  --sem-ground: #0b0b0d;
-  --sem-surface: #191920;
-  --sem-line: #2a2a33;
-  --sem-ink: #e8e4dc;
-  --sem-ink-dim: #8f8f9c;
-  --sem-accent: #6b82e8;
-  color-scheme: dark;
-}
-:root[data-theme="light"] {
-  --sem-ground: #e8e4dc;
-  --sem-surface: #f2efe9;
-  --sem-line: #cdc7bb;
-  --sem-ink: #191920;
-  --sem-ink-dim: #5d5d68;
-  --sem-accent: #3f5bd6;
+  --sem-ground: #eef1f5;
+  --sem-surface: #ffffff;
+  --sem-line: #d7dde5;
+  --sem-ink: #0e1116;
+  --sem-ink-dim: #55636f;
+  --sem-accent: #0047ab; /* cobalt */
+  --sem-accent-2: #007fff; /* azure  */
+  --sem-accent-ink: #ffffff;
   color-scheme: light;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --sem-ground: #e8e4dc;
-    --sem-surface: #f2efe9;
-    --sem-line: #cdc7bb;
-    --sem-ink: #191920;
-    --sem-ink-dim: #5d5d68;
-    --sem-accent: #3f5bd6;
-    color-scheme: light;
-  }
+/* Light is the default for everyone; dark is opt-in via the toggle and
+   remembered in localStorage. We deliberately do NOT auto-switch on
+   prefers-color-scheme: the light palette is the primary identity. */
+:root[data-theme="dark"] {
+  --sem-ground: #16110c;
+  --sem-surface: #211811;
+  --sem-line: #362a1e;
+  --sem-ink: #f4efe6;
+  --sem-ink-dim: #b0a288;
+  --sem-accent: #e9a23c; /* amber */
+  --sem-accent-2: #e0692a; /* burnt orange */
+  --sem-accent-ink: #1a1209;
+  color-scheme: dark;
 }
 
-/* ---- motion: four easings, mirrored in src/motion/tokens.ts ---- */
+/* ---- motion: easings mirrored in src/motion/tokens.ts ---- */
 :root {
   --e-out: cubic-bezier(0.22, 1, 0.36, 1);
   --e-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -104,30 +94,17 @@
 
   --t-fast: 180ms;
   --t-base: 420ms;
-  --t-slow: 900ms;
+  --t-slow: 800ms;
 
-  /* ---- grid: gap-derived, so one number re-proportions the page ---- */
-  --g-columns: 6;
-  --g-gap: clamp(0.9rem, 2.2vw, 1.6rem);
-  --g-margin: calc(var(--g-gap) * 1.25);
-  --g-max: 90rem;
-}
-@media (min-width: 48rem) {
-  :root {
-    --g-columns: 12;
-    --g-margin: calc(var(--g-gap) * 2.5);
-  }
+  --g-max: 78rem;
+  --g-margin: clamp(1.25rem, 5vw, 3rem);
 }
 
 /* ============================================================
-   base - MUST be inside @layer base.
-
-   Unlayered rules beat everything inside @layer utilities, so a bare
-   `a { color: inherit }` here silently killed every text-* colour utility on
-   every link in the app. Layer order is theme → base → components → utilities,
-   so utilities win from inside a layer and lose from outside one.
+   base - MUST live inside @layer base. Unlayered rules beat every
+   utility, so a bare `a { color: inherit }` here would kill text-* colour
+   utilities. Layer order: theme -> base -> components -> utilities.
    ============================================================ */
-
 @layer base {
   *,
   *::before,
@@ -136,8 +113,7 @@
   }
 
   html {
-    /* Lenis drives scrolling; native smooth-scroll would fight it */
-    scroll-behavior: auto;
+    scroll-behavior: smooth;
   }
 
   body {
@@ -149,6 +125,9 @@
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    transition:
+      background var(--t-base) var(--e-out),
+      color var(--t-base) var(--e-out);
   }
 
   h1,
@@ -156,13 +135,11 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 500;
-    line-height: 0.98;
-    letter-spacing: -0.02em;
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: 0.005em;
     text-wrap: balance;
     margin: 0;
-    /* Fraunces axes: a little wonk and soft, dialled back from the defaults */
-    font-variation-settings: "SOFT" 20, "WONK" 1;
   }
 
   p {
@@ -185,11 +162,9 @@
   :focus-visible {
     outline: 2px solid var(--sem-accent);
     outline-offset: 3px;
-    border-radius: 2px;
+    border-radius: 3px;
   }
 
-  /* Deep links and reduced-motion jumps bypass Lenis, so the landing target
-     needs to clear the 64px fixed header on its own. */
   :target,
   section[id] {
     scroll-margin-top: 5.5rem;
@@ -197,10 +172,8 @@
 }
 
 /* ============================================================
-   components - after base, before utilities, so a utility can still
-   override any of these on a case-by-case basis.
+   components
    ============================================================ */
-
 @layer components {
   .shell {
     width: 100%;
@@ -209,95 +182,32 @@
     padding-inline: var(--g-margin);
   }
 
+  /* Handwritten section accent (shadows-into-light). */
+  .kicker {
+    font-family: var(--font-script);
+    font-weight: 400;
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    line-height: 1;
+    color: var(--sem-accent-2);
+  }
+  :root[data-theme="dark"] .kicker {
+    color: var(--sem-accent);
+  }
+
   .eyebrow {
-    font-family: var(--font-mono);
-    font-size: var(--text-eyebrow);
-    font-weight: 500;
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--sem-ink-dim);
   }
 
-  /* Curtain: wipes away on load and on every navigation. Resting state is
-     cleared, so if the animation never runs nothing is ever covered. */
-  .curtain {
-    transform-origin: top;
-    transform: scaleY(0);
-    animation: curtain-lift 620ms var(--e-in-out) both;
-  }
-  @keyframes curtain-lift {
-    0% { transform: scaleY(1); }
-    100% { transform: scaleY(0); }
-  }
-
-  /* SplitText: fragments ship visible. The hidden state is added by JS before
-     paint, so no-JS, print and crawlers always get readable text. */
-  .split-mask {
-    display: inline-block;
-    vertical-align: bottom;
-    padding-bottom: 0.12em;
-    margin-bottom: -0.12em;
-    /* Clip ONLY the bottom edge, so the word is hidden until it rises out of
-       the mask - but italic ascenders (the d in "hold") and glyph overhangs are
-       never cropped on the top or sides. Negative insets extend the visible
-       region past the box; a plain overflow:hidden clips all four sides. */
-    clip-path: inset(-0.4em -0.4em 0 -0.4em);
-  }
-  .split-part {
-    display: inline-block;
-    will-change: transform;
-  }
-  [data-split="hidden"] .split-part {
-    transform: translateY(115%);
-    opacity: 0;
-  }
-  [data-split="shown"] .split-part {
-    transform: none;
-    opacity: 1;
-    transition:
-      transform var(--t-slow) var(--e-out)
-        calc(var(--split-delay, 0s) + var(--i, 0) * 62ms),
-      opacity var(--t-slow) var(--e-out)
-        calc(var(--split-delay, 0s) + var(--i, 0) * 62ms);
-  }
-
-  /* Film grain over the whole page. Static noise in a data URI rather than a
-     canvas: it costs one paint and no frames. The overlay blend keeps it from
-     lifting the black point. */
-  .grain {
-    position: fixed;
-    inset: -50%;
-    z-index: 30;
-    pointer-events: none;
-    opacity: 0.045;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-    animation: grain-drift 7s steps(6, end) infinite;
-    will-change: transform;
-  }
-  @keyframes grain-drift {
-    0% { transform: translate3d(0, 0, 0); }
-    20% { transform: translate3d(-3%, 2%, 0); }
-    40% { transform: translate3d(2%, -3%, 0); }
-    60% { transform: translate3d(-2%, -2%, 0); }
-    80% { transform: translate3d(3%, 1%, 0); }
-    100% { transform: translate3d(0, 0, 0); }
-  }
-
-  /* Scroll-velocity skew. --scroll-velocity is published by the Lenis loop in
-     src/motion/SmoothScroll.tsx; clamped so a fast flick can't shear the page. */
-  .velocity-skew {
-    transform: skewY(clamp(-1.6deg, calc(var(--scroll-velocity, 0) * -0.04deg), 1.6deg));
-    transition: transform 220ms var(--e-out);
-    will-change: transform;
-  }
-
-  /* Reveal - the resting state is VISIBLE. The hidden state is added by JS in a
-     layout effect (before paint), so no-JS, print and crawlers all get content,
-     and there is no flash for everyone else. */
+  /* Reveal - resting state VISIBLE. Hidden state is armed by JS in a layout
+     effect (before paint), so no-JS, print and crawlers all get content. */
   [data-reveal="hidden"] {
     opacity: 0;
-    transform: translateY(var(--reveal-distance, 18px));
+    transform: translateY(var(--reveal-distance, 16px));
   }
   [data-reveal="shown"] {
     opacity: 1;
@@ -307,7 +217,6 @@
       transform var(--t-slow) var(--e-out) var(--reveal-delay, 0ms);
   }
 
-  /* Skip link - visible only when focused */
   .skip {
     position: absolute;
     left: var(--g-margin);
@@ -316,8 +225,8 @@
     background: var(--sem-ink);
     color: var(--sem-ground);
     padding: 0.6rem 1rem;
-    font-family: var(--font-mono);
     font-size: var(--text-micro);
+    border-radius: 6px;
     transition: top var(--t-fast) var(--e-out);
   }
   .skip:focus {
@@ -326,8 +235,7 @@
 }
 
 /* ============================================================
-   reduced motion - a different, still rendering, not a dimmer.
-   Unlayered and !important on purpose: this must beat everything.
+   reduced motion - unlayered + !important on purpose: must beat all.
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -342,21 +250,6 @@
     opacity: 1 !important;
     transform: none !important;
   }
-  .velocity-skew {
-    transform: none !important;
-  }
-  .grain {
-    animation: none !important;
-  }
-  .curtain {
-    animation: none !important;
-    transform: scaleY(0) !important;
-  }
-  [data-split] .split-part {
-    transform: none !important;
-    opacity: 1 !important;
-    transition: none !important;
-  }
 }
 
 @media print {
@@ -364,14 +257,8 @@
     background: #fff;
     color: #000;
   }
-  .no-print,
-  .grain,
-  .curtain {
+  .no-print {
     display: none !important;
-  }
-  [data-split] .split-part {
-    transform: none !important;
-    opacity: 1 !important;
   }
   [data-reveal] {
     opacity: 1 !important;
