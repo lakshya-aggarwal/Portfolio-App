@@ -110,7 +110,7 @@ export function CursorRibbon() {
         }
       `;
 
-      const count = 22;
+      const count = 32;
       const points = Array.from({ length: count }, () => new Vec3());
 
       const polyline = new Polyline(gl, {
@@ -120,7 +120,7 @@ export function CursorRibbon() {
         uniforms: {
           uColor: { value: new Color(accentHex()) },
           uThickness: { value: 5 },
-          uOpacity: { value: 0.7 },
+          uOpacity: { value: 0.9 },
         },
       });
       // Alpha blend so the neon reads on both the light and dark canvas.
