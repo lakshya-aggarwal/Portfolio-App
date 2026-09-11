@@ -219,9 +219,11 @@
 
   /* Experience bullet marker: a small dot. Resting state is a plain visible
      dot (no-JS, print, and already-on-screen content are never mid-animation
-     - same contract as [data-reveal] above); the pop only plays once its
-     Reveal ancestor reaches [data-reveal="shown"], staggered per bullet via
-     --dot-i. Uses the app's overshoot easing (src/motion/tokens.ts EASE.overshoot). */
+     - same contract as [data-reveal] above). The pop is driven by the Bullets
+     component (src/components/ui/bullets.tsx), which arms [data-bullets] on the
+     <ul> and flips it to "shown" only when the list actually scrolls into view -
+     NOT off Reveal, whose 4s failsafe fired the pop far below the fold. Staggered
+     per bullet via --dot-i; overshoot easing mirrors src/motion/tokens.ts. */
   .exp-dot {
     margin-top: 0.5rem;
     width: 6px;
@@ -229,7 +231,12 @@
     border-radius: 9999px;
     background: var(--sem-accent);
   }
-  [data-reveal="shown"] .exp-dot {
+  /* Armed below the fold before paint: collapse the dot so the pop grows from 0. */
+  [data-bullets="hidden"] .exp-dot {
+    transform: scale(0);
+    opacity: 0;
+  }
+  [data-bullets="shown"] .exp-dot {
     animation: exp-dot-pop var(--t-base) cubic-bezier(0.34, 1.56, 0.64, 1) both;
     animation-delay: calc(var(--dot-i, 0) * 70ms);
   }
@@ -277,6 +284,10 @@
     opacity: 1 !important;
     transform: none !important;
   }
+  [data-bullets="hidden"] .exp-dot {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 @media print {
@@ -287,7 +298,8 @@
   .no-print {
     display: none !important;
   }
-  [data-reveal] {
+  [data-reveal],
+  [data-bullets="hidden"] .exp-dot {
     opacity: 1 !important;
     transform: none !important;
   }

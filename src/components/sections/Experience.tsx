@@ -1,4 +1,5 @@
 import { Reveal } from "@/motion/Reveal";
+import { Bullets } from "@/components/ui/bullets";
 import { ProjectShowcase } from "@/components/ui/project-showcase";
 import { Timeline, type TimelineEntry } from "@/components/ui/timeline";
 import { experience, repos } from "@/lib/profile";
@@ -41,18 +42,7 @@ export function Experience() {
                   )}
                 </div>
                 <p className="mt-2 max-w-[60ch] text-ink-dim">{pos.blurb}</p>
-                <ul className="mt-3 flex list-none flex-col gap-2 p-0">
-                  {pos.points.map((pt, ptIndex) => (
-                    <li key={pt} className="flex gap-3 text-[0.95rem] text-ink-dim">
-                      <span
-                        aria-hidden="true"
-                        className="exp-dot shrink-0"
-                        style={{ "--dot-i": ptIndex } as React.CSSProperties}
-                      />
-                      <span>{pt}</span>
-                    </li>
-                  ))}
-                </ul>
+                <Bullets points={pos.points} />
                 <div className="mt-4 flex flex-wrap gap-2">
                   {pos.tags.map((t) => (
                     <span
