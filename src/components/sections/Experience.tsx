@@ -1,7 +1,6 @@
-import { Briefcase } from "lucide-react";
 import { Reveal } from "@/motion/Reveal";
 import { ProjectShowcase } from "@/components/ui/project-showcase";
-import { Timeline, type TimelineItem } from "@/components/ui/timeline";
+import { Timeline, type TimelineEntry } from "@/components/ui/timeline";
 import { experience, repos } from "@/lib/profile";
 
 /**
@@ -9,19 +8,19 @@ import { experience, repos } from "@/lib/profile";
  * strip linking public GitHub repos. Honest content, no invented products.
  */
 export function Experience() {
-  const timelineItems: TimelineItem[] = experience.map((e, i) => ({
-    id: `${e.org}-${e.role}`,
-    title: e.role,
-    // Most recent role is "active" (pulsing dot); the rest are "completed".
-    status: i === 0 ? "active" : "completed",
-    icon: <Briefcase className="h-3 w-3" />,
+  const timelineData: TimelineEntry[] = experience.map((e) => ({
+    // The period is the sticky "year" label; role and detail scroll past it.
+    title: e.period,
     content: (
-      <div>
-        <p className="font-semibold text-accent">{e.org}</p>
-        <p className="mt-0.5 font-mono text-[0.72rem] uppercase tracking-[0.12em] text-ink-dim">
-          {e.period} · {e.location}
+      <div className="pb-2">
+        <h3 className="font-display text-h3 uppercase leading-none text-ink">
+          {e.role}
+        </h3>
+        <p className="mt-2 font-semibold text-accent">{e.org}</p>
+        <p className="mt-1 font-mono text-[0.72rem] uppercase tracking-[0.12em] text-ink-dim">
+          {e.location}
         </p>
-        <p className="mt-3 max-w-[62ch] text-ink-dim">{e.blurb}</p>
+        <p className="mt-3 max-w-[60ch] text-ink-dim">{e.blurb}</p>
         <ul className="mt-3 flex list-none flex-col gap-2 p-0">
           {e.points.map((pt) => (
             <li key={pt} className="flex gap-3 text-[0.95rem] text-ink-dim">
@@ -49,9 +48,9 @@ export function Experience() {
       <p className="kicker">experience</p>
       <h2 className="mt-2 font-display text-h2 uppercase">Where I&#39;ve built</h2>
 
-      <Reveal className="mt-12">
-        <Timeline items={timelineItems} variant="spacious" showTimestamps={false} />
-      </Reveal>
+      <div className="mt-12">
+        <Timeline data={timelineData} />
+      </div>
 
       {/* Open source */}
       <div id="open-source" className="mt-20">

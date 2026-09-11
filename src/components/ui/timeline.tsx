@@ -1,221 +1,112 @@
 "use client";
 
-import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
-import { Check, Clock, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
-// Vendored timeline (21st.dev-style). Self-contained: the documentation example
-// exports were dropped, and the horizontal-only ScrollArea was replaced with a
-// native overflow-x-auto div to avoid the @radix-ui/react-scroll-area dep.
+/**
+ * Scroll-beam timeline in the spirit of Aceternity's (manuarora700) component:
+ * a sticky title per entry, and a vertical track whose accent gradient "beam"
+ * fills as you scroll through the section.
+ *
+ * Reimplemented natively - the original uses framer-motion's useScroll/
+ * useTransform; this drives the beam height from a rAF-throttled scroll handler
+ * so the site keeps its no-animation-library footprint. Reduced motion shows a
+ * full, static beam.
+ */
 
-const timelineVariants = cva("relative flex flex-col", {
-  variants: {
-    variant: {
-      default: "gap-4",
-      compact: "gap-2",
-      spacious: "gap-8",
-    },
-    orientation: {
-      vertical: "flex-col",
-      horizontal: "flex-row",
-    },
-  },
-  defaultVariants: {
-    variant: "default",
-    orientation: "vertical",
-  },
-});
-
-const timelineItemVariants = cva("relative flex gap-3 pb-2", {
-  variants: {
-    orientation: {
-      vertical: "flex-row",
-      horizontal: "flex-col min-w-64 shrink-0",
-    },
-  },
-  defaultVariants: {
-    orientation: "vertical",
-  },
-});
-
-const timelineConnectorVariants = cva("bg-border", {
-  variants: {
-    orientation: {
-      vertical: "absolute left-3 top-9 h-full w-px",
-      horizontal: "absolute top-3 left-8 w-full h-px",
-    },
-    status: {
-      default: "bg-border",
-      completed: "bg-primary",
-      active: "bg-primary",
-      pending: "bg-muted-foreground/30",
-      error: "bg-destructive",
-    },
-  },
-  defaultVariants: {
-    orientation: "vertical",
-    status: "default",
-  },
-});
-
-const timelineIconVariants = cva(
-  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 bg-background text-xs font-medium",
-  {
-    variants: {
-      status: {
-        default: "border-border text-muted-foreground",
-        completed: "border-primary bg-primary text-primary-foreground",
-        active: "border-primary bg-background text-primary animate-pulse",
-        pending: "border-muted-foreground/30 text-muted-foreground",
-        error: "border-destructive bg-destructive text-destructive-foreground",
-      },
-    },
-    defaultVariants: {
-      status: "default",
-    },
-  },
-);
-
-export interface TimelineItem {
-  id: string;
+export interface TimelineEntry {
   title: string;
-  description?: string;
-  timestamp?: string | Date;
-  status?: "default" | "completed" | "active" | "pending" | "error";
-  icon?: React.ReactNode;
-  content?: React.ReactNode;
-  metadata?: Record<string, unknown>;
+  content: ReactNode;
 }
 
-export interface TimelineProps extends VariantProps<typeof timelineVariants> {
-  items: TimelineItem[];
-  className?: string;
-  showConnectors?: boolean;
-  showTimestamps?: boolean;
-  timestampPosition?: "top" | "bottom" | "inline";
-}
+export function Timeline({ data }: { data: TimelineEntry[] }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(0);
+  const [progress, setProgress] = useState(0);
 
-function getStatusIcon(status: TimelineItem["status"]) {
-  switch (status) {
-    case "completed":
-      return <Check className="h-3 w-3" />;
-    case "active":
-      return <Clock className="h-3 w-3" />;
-    case "pending":
-      return <Clock className="h-3 w-3" />;
-    case "error":
-      return <X className="h-3 w-3" />;
-    default:
-      return <div className="h-2 w-2 rounded-full bg-current" />;
-  }
-}
+  // Measure the track height (grows/shrinks with content and viewport). The
+  // ResizeObserver fires once on observe, so state is only set from its (async)
+  // callback - never synchronously in the effect body.
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() =>
+      setHeight(el.getBoundingClientRect().height),
+    );
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
-function formatTimestamp(timestamp: string | Date): string {
-  if (!timestamp) return "";
-  const date = typeof timestamp === "string" ? new Date(timestamp) : timestamp;
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+  // Beam fill from scroll position. 0 as the block enters, 1 once it has mostly
+  // scrolled through - the same feel as framer offset ["start 10%","end 50%"].
+  // All setState happens inside the rAF callback, never synchronously here.
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let raf = 0;
+    const update = () => {
+      if (reduced) {
+        setProgress(1);
+        return;
+      }
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const startLine = vh * 0.15;
+      const span = rect.height - vh * 0.5;
+      const p = span > 0 ? (startLine - rect.top) / span : rect.top <= startLine ? 1 : 0;
+      setProgress(Math.min(1, Math.max(0, p)));
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+    raf = requestAnimationFrame(update);
+    if (!reduced) {
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onScroll, { passive: true });
+    }
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
 
-export function Timeline({
-  items,
-  className,
-  variant,
-  orientation = "vertical",
-  showConnectors = true,
-  showTimestamps = true,
-  timestampPosition = "top",
-  ...props
-}: TimelineProps) {
-  const timelineContent = (
-    <div
-      className={cn(
-        timelineVariants({ variant, orientation }),
-        orientation === "horizontal" ? "pb-4" : "",
-      )}
-    >
-      {items.map((item, index) => (
-        <div key={item.id} className={cn(timelineItemVariants({ orientation }))}>
-          {/* Connector Line */}
-          {showConnectors && index < items.length - 1 && (
-            <div
-              className={cn(
-                timelineConnectorVariants({ orientation, status: item.status }),
-              )}
-            />
-          )}
-
-          {/* Icon */}
-          <div className="relative z-10 flex shrink-0">
-            <div className={cn(timelineIconVariants({ status: item.status }))}>
-              {item.icon || getStatusIcon(item.status)}
+  return (
+    <div ref={trackRef} className="relative w-full">
+      {data.map((item, index) => (
+        <div key={index} className="flex justify-start pt-10 md:gap-10 md:pt-24">
+          {/* Sticky title + dot */}
+          <div className="sticky top-28 z-30 flex max-w-xs flex-col items-start self-start md:w-52 md:flex-row lg:max-w-sm">
+            <div className="absolute left-0 flex h-10 w-10 items-center justify-center rounded-full bg-ground">
+              <div className="h-3 w-3 rounded-full border border-line bg-surface" />
             </div>
+            <h3 className="hidden pl-16 font-display text-h3 uppercase leading-none text-ink-dim md:block">
+              {item.title}
+            </h3>
           </div>
 
           {/* Content */}
-          <div className="flex min-w-0 flex-1 flex-col gap-2">
-            {showTimestamps && timestampPosition === "top" && item.timestamp && (
-              <time className="text-xs text-muted-foreground">
-                {formatTimestamp(item.timestamp)}
-              </time>
-            )}
-
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="font-medium leading-tight">{item.title}</h3>
-              {showTimestamps &&
-                timestampPosition === "inline" &&
-                item.timestamp && (
-                  <time className="shrink-0 text-xs text-muted-foreground">
-                    {formatTimestamp(item.timestamp)}
-                  </time>
-                )}
-            </div>
-
-            {item.description && (
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {item.description}
-              </p>
-            )}
-
-            {item.content && <div className="mt-3">{item.content}</div>}
-
-            {showTimestamps &&
-              timestampPosition === "bottom" &&
-              item.timestamp && (
-                <time className="text-xs text-muted-foreground">
-                  {formatTimestamp(item.timestamp)}
-                </time>
-              )}
+          <div className="relative w-full pl-16 pr-1 md:pl-4">
+            <h3 className="mb-3 block font-display text-h3 uppercase leading-none text-ink-dim md:hidden">
+              {item.title}
+            </h3>
+            {item.content}
           </div>
         </div>
       ))}
-    </div>
-  );
 
-  if (orientation === "horizontal") {
-    return (
-      <div className={cn("w-full overflow-x-auto", className)} {...props}>
-        {timelineContent}
+      {/* Track + animated beam */}
+      <div
+        style={{ height: `${height}px` }}
+        className="absolute left-5 top-0 w-[2px] overflow-hidden bg-line/60"
+        aria-hidden="true"
+      >
+        <div
+          style={{ height: `${progress * 100}%`, opacity: progress > 0.02 ? 1 : 0 }}
+          className="absolute inset-x-0 top-0 w-[2px] rounded-full bg-gradient-to-t from-accent via-accent-2 to-transparent transition-opacity duration-300"
+        />
       </div>
-    );
-  }
-
-  return (
-    <div className={className} {...props}>
-      {timelineContent}
     </div>
   );
 }
-
-export {
-  timelineVariants,
-  timelineItemVariants,
-  timelineConnectorVariants,
-  timelineIconVariants,
-};
