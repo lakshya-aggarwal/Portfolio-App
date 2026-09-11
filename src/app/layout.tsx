@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/site/Nav";
 import { Footer } from "@/components/site/Footer";
@@ -9,16 +8,11 @@ import { site } from "@/lib/site";
  * L6 - the shell. Owns fonts, theme boot, nav and footer. Everything below
  * receives data and tokens; nothing below reaches for a global.
  *
- * Display "balboa" and script "shadows-into-light" come from the Adobe Fonts
- * (Typekit) kit linked in <head>; body is self-hosted Hanken Grotesk via
- * next/font. The @theme block in globals.css maps these to --font-display /
- * --font-script / --font-body.
+ * All three faces - display "balboa", script "shadows-into-light", and body
+ * "poppins" - come from the Adobe Fonts (Typekit) kit linked in <head>. The
+ * @theme block in globals.css maps them to --font-display / --font-script /
+ * --font-body, so no next/font loader is needed for any of them.
  */
-const body = Hanken_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-hanken",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -55,11 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={body.variable}
-      suppressHydrationWarning
-    >
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="stylesheet" href="https://use.typekit.net/sam4epv.css" />
         <script dangerouslySetInnerHTML={{ __html: themeBoot }} />

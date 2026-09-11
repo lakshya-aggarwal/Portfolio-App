@@ -45,7 +45,7 @@
      body self-hosted via next/font. */
   --font-display: "balboa", "Arial Narrow", sans-serif;
   --font-script: "shadows-into-light", "Comic Sans MS", cursive;
-  --font-body: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-body: "poppins", ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* fluid type scale */
@@ -215,6 +215,33 @@
     transition:
       opacity var(--t-slow) var(--e-out) var(--reveal-delay, 0ms),
       transform var(--t-slow) var(--e-out) var(--reveal-delay, 0ms);
+  }
+
+  /* Experience bullet marker: a small dot. Resting state is a plain visible
+     dot (no-JS, print, and already-on-screen content are never mid-animation
+     - same contract as [data-reveal] above); the pop only plays once its
+     Reveal ancestor reaches [data-reveal="shown"], staggered per bullet via
+     --dot-i. Uses the app's overshoot easing (src/motion/tokens.ts EASE.overshoot). */
+  .exp-dot {
+    margin-top: 0.5rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: var(--sem-accent);
+  }
+  [data-reveal="shown"] .exp-dot {
+    animation: exp-dot-pop var(--t-base) cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    animation-delay: calc(var(--dot-i, 0) * 70ms);
+  }
+  @keyframes exp-dot-pop {
+    from {
+      transform: scale(0);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
 
   .skip {

@@ -8,42 +8,68 @@ import { experience, repos } from "@/lib/profile";
  * strip linking public GitHub repos. Honest content, no invented products.
  */
 export function Experience() {
-  const timelineData: TimelineEntry[] = experience.map((e) => ({
-    // The period is the sticky "year" label; role and detail scroll past it.
-    title: e.period,
-    // key on this element: it is created inside experience.map() and passed to
-    // the (client) Timeline, so React wants a key to treat the set as a list.
-    content: (
-      <div key={e.org} className="pb-2">
-        <h3 className="font-display text-h3 uppercase leading-none text-ink">
-          {e.role}
-        </h3>
-        <p className="mt-2 font-semibold text-accent">{e.org}</p>
-        <p className="mt-1 font-mono text-[0.72rem] uppercase tracking-[0.12em] text-ink-dim">
-          {e.location}
-        </p>
-        <p className="mt-3 max-w-[60ch] text-ink-dim">{e.blurb}</p>
-        <ul className="mt-3 flex list-none flex-col gap-2 p-0">
-          {e.points.map((pt) => (
-            <li key={pt} className="flex gap-3 text-[0.95rem] text-ink-dim">
-              <span aria-hidden="true" className="mt-2 h-px w-4 shrink-0 bg-accent" />
-              <span>{pt}</span>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {e.tags.map((t) => (
-            <span
-              key={t}
-              className="rounded-full border border-line px-3 py-1 text-[0.68rem] font-medium uppercase tracking-[0.08em] text-ink-dim"
-            >
-              {t}
-            </span>
-          ))}
+  const timelineData: TimelineEntry[] = experience.map((e) => {
+    const multiRole = e.positions.length > 1;
+    return {
+      // The period is the sticky "year" label; positions scroll past it.
+      title: e.period,
+      // key on this element: it is created inside experience.map() and passed to
+      // the (client) Timeline, so React wants a key to treat the set as a list.
+      content: (
+        <div key={e.org} className="pb-2">
+          <h3 className="font-display text-h3 uppercase leading-none text-ink">
+            {e.org}
+          </h3>
+          <p className="mt-1 font-mono text-[0.72rem] uppercase tracking-[0.12em] text-ink-dim">
+            {e.location}
+          </p>
+
+          <div className="mt-4 flex flex-col gap-5">
+            {e.positions.map((pos, i) => (
+              <Reveal
+                key={pos.role}
+                as="div"
+                index={i}
+                className={i > 0 ? "border-t border-line pt-5" : undefined}
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+                  <p className="font-semibold text-accent">{pos.role}</p>
+                  {multiRole && (
+                    <p className="font-mono text-[0.66rem] uppercase tracking-[0.1em] text-ink-dim">
+                      {pos.period}
+                    </p>
+                  )}
+                </div>
+                <p className="mt-2 max-w-[60ch] text-ink-dim">{pos.blurb}</p>
+                <ul className="mt-3 flex list-none flex-col gap-2 p-0">
+                  {pos.points.map((pt, ptIndex) => (
+                    <li key={pt} className="flex gap-3 text-[0.95rem] text-ink-dim">
+                      <span
+                        aria-hidden="true"
+                        className="exp-dot shrink-0"
+                        style={{ "--dot-i": ptIndex } as React.CSSProperties}
+                      />
+                      <span>{pt}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {pos.tags.map((t) => (
+                    <span
+                      key={t}
+                      className="rounded-full border border-line px-3 py-1 text-[0.68rem] font-medium uppercase tracking-[0.08em] text-ink-dim"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
-      </div>
-    ),
-  }));
+      ),
+    };
+  });
 
   return (
     <section id="work" className="shell border-t border-line py-20 md:py-28">
