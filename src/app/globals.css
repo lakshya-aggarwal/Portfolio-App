@@ -232,14 +232,22 @@
     height: 9px;
     border-radius: 9999px;
     border: 1.5px solid var(--sem-accent);
+    /* faint neon bloom so the ring glows even at rest */
+    box-shadow:
+      0 0 4px -1px var(--sem-accent),
+      0 0 8px -2px var(--sem-accent);
   }
-  /* The looping ripple. Invisible at rest; only animates once its list is shown. */
+  /* The looping ripple. Invisible at rest; only animates once its list is shown.
+     Two stacked blurs give it the neon glow that spills past the stroke. */
   .exp-dot::after {
     content: "";
     position: absolute;
     inset: -3px;
     border-radius: 9999px;
     border: 1.5px solid var(--sem-accent);
+    box-shadow:
+      0 0 5px var(--sem-accent),
+      0 0 10px var(--sem-accent);
     opacity: 0;
   }
   /* Armed below the fold before paint: collapse the ring so it grows in. */
@@ -268,14 +276,17 @@
   }
   @keyframes exp-ring-pulse {
     0% {
-      transform: scale(0.7);
-      opacity: 0.5;
+      transform: scale(0.5);
+      opacity: 0;
     }
-    70% {
+    18% {
+      opacity: 0.9;
+    }
+    85% {
       opacity: 0;
     }
     100% {
-      transform: scale(1.7);
+      transform: scale(2.3);
       opacity: 0;
     }
   }
