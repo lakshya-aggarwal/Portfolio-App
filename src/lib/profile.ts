@@ -39,12 +39,12 @@ export const about =
 export const experience: Experience[] = [
   {
     org: "Adobe",
-    period: "Sep 2021 — Present",
+    period: "Sep 2021 - Present",
     location: "Noida, India",
     positions: [
       {
         role: "Apps/Sys Engineer 3",
-        period: "Feb 2026 — Present",
+        period: "Feb 2026 - Present",
         blurb:
           "Developing solutions that showcase Adobe's enterprise tools and enhance user experience.",
         points: [
@@ -56,7 +56,7 @@ export const experience: Experience[] = [
       },
       {
         role: "Apps/Sys Engineer",
-        period: "Jun 2025 — Feb 2026",
+        period: "Jun 2025 - Feb 2026",
         blurb:
           "Building demos and POCs that showcase enterprise Adobe capabilities.",
         points: [
@@ -68,7 +68,7 @@ export const experience: Experience[] = [
       },
       {
         role: "Solutions Consultant",
-        period: "Sep 2021 — Jun 2025",
+        period: "Sep 2021 - Jun 2025",
         blurb:
           "Supported enterprise AEM solutions, drawing on AEM, Python, and Java to meet organizational goals.",
         points: [],
@@ -78,14 +78,14 @@ export const experience: Experience[] = [
   },
   {
     org: "TechChefz (TCZ Digital)",
-    period: "2019 — 2021",
+    period: "2019 - 2021",
     location: "New Delhi, India",
     positions: [
       {
         role: "Senior Associate Technology",
-        period: "2019 — 2021",
+        period: "2019 - 2021",
         blurb:
-          "AEM delivery on the Royal Enfield account — a multi-locale, multi-lingual, omni-channel CMS.",
+          "AEM delivery on the Royal Enfield account - a multi-locale, multi-lingual, omni-channel CMS.",
         points: [
           "Spearheaded the AEM 6.3 → 6.5 migration and GDPR-compliance work.",
           "Built custom templated email and PDF-builder modules reused across projects.",
@@ -103,7 +103,7 @@ export const experience: Experience[] = [
       {
         role: "Mobile Application Developer",
         period: "2018",
-        blurb: "KhaZaaNa — an Android karaoke app with real-time lyrics and recording.",
+        blurb: "KhaZaaNa - an Android karaoke app with real-time lyrics and recording.",
         points: [
           "Built the music player with a synchronized lyrics scroller.",
           "Added simultaneous audio-and-video recording.",
@@ -132,7 +132,7 @@ export const experience: Experience[] = [
 ];
 
 export const certifications: string[] = [
-  "Adobe Certified Expert — AEM Forms Developer",
+  "Adobe Certified Expert - AEM Forms Developer",
 ];
 
 export const repos: Repo[] = [

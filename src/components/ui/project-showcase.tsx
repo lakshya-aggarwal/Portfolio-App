@@ -31,23 +31,21 @@ export function ProjectShowcase({ items }: { items: ShowcaseItem[] }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const isVisible = hoveredIndex !== null
 
-  const containerRef = useRef<HTMLDivElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
-  // Cursor target + smoothed position (relative to the container), and the
-  // container's viewport origin - all refs so updating them never re-renders.
+  // Cursor target + smoothed position, in VIEWPORT coords - refs so updating
+  // them never re-renders. Viewport coords keep the fixed preview glued to the
+  // cursor even while the page scrolls (no scroll-varying container origin).
   const target = useRef({ x: 0, y: 0 })
   const smooth = useRef({ x: 0, y: 0 })
-  const origin = useRef({ left: 0, top: 0 })
 
   // The rAF loop runs ONLY while something is hovered; it eases `smooth` toward
-  // `target` and writes position straight to the preview node.
+  // `target` and writes position straight to the preview node (anchored at the
+  // viewport origin via left-0/top-0, offset by the cursor position).
   useEffect(() => {
     if (!isVisible) return
     const place = () => {
       const el = previewRef.current
       if (!el) return
-      el.style.left = `${origin.current.left}px`
-      el.style.top = `${origin.current.top}px`
       el.style.transform = `translate3d(${smooth.current.x + 20}px, ${smooth.current.y - 100}px, 0)`
     }
     // Reduced motion: snap to the cursor once, no easing loop.
@@ -69,18 +67,15 @@ export function ProjectShowcase({ items }: { items: ShowcaseItem[] }) {
   }, [isVisible])
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    const rect = containerRef.current?.getBoundingClientRect()
-    if (!rect) return
-    origin.current = { left: rect.left, top: rect.top }
-    target.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+    target.current = { x: e.clientX, y: e.clientY }
   }
 
   return (
-    <div ref={containerRef} onMouseMove={handleMouseMove} className="relative w-full">
+    <div onMouseMove={handleMouseMove} className="relative w-full">
       {/* Cursor-following preview (position written imperatively in the rAF loop) */}
       <div
         ref={previewRef}
-        className="pointer-events-none fixed z-50 hidden overflow-hidden rounded-xl shadow-2xl md:block"
+        className="pointer-events-none fixed left-0 top-0 z-50 hidden overflow-hidden rounded-xl shadow-2xl md:block"
         style={{
           opacity: isVisible ? 1 : 0,
           scale: isVisible ? 1 : 0.8,

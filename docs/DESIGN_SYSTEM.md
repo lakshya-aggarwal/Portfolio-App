@@ -1,4 +1,4 @@
-# Design System — portable reference
+# Design System - portable reference
 
 A self-contained specification of the design system built for this portfolio,
 written so **another app can adopt it**. It is framework-light: the core is plain
@@ -8,8 +8,8 @@ Tailwind v4 project and most of it into any project at all.
 Read it in two passes:
 
 1. **The contract** (semantic tokens, motion tokens, theming mechanism, usage
-   rules) — copy this **verbatim**. It is what every component depends on.
-2. **The instantiation** (the specific palettes, fonts, and components) — this is
+   rules) - copy this **verbatim**. It is what every component depends on.
+2. **The instantiation** (the specific palettes, fonts, and components) - this is
    *this* product's skin. Keep the shape, swap the values for your brand.
 
 > Source of truth for the live values is [`src/app/globals.css`](../src/app/globals.css)
@@ -31,7 +31,7 @@ Read it in two passes:
 4. **Type does the work.** A bold condensed display face carries personality;
    color is used sparingly, as accent.
 5. **Content is visible at rest.** Animations enhance a valid, visible resting
-   state — they are never a prerequisite for content appearing (SSR / no-JS /
+   state - they are never a prerequisite for content appearing (SSR / no-JS /
    print / reduced-motion all get the content).
 6. **Document everything.** If it is not in this file or a token, it does not
    exist. No inline magic numbers for color, type, spacing, duration, or easing.
@@ -49,7 +49,7 @@ Read it in two passes:
 3. Copy the **theme store + toggle** (§8) if you want a light/dark switch.
 4. Reskin: edit the ~16 hex values in the two palette blocks and the four
    `--font-*` families. Touch nothing in components.
-5. Adopt the **usage rules** (§9) as lint-in-review conventions — each one
+5. Adopt the **usage rules** (§9) as lint-in-review conventions - each one
    encodes a bug that has actually shipped.
 6. Pull in components (§10) as needed; they already speak the token contract.
 
@@ -63,7 +63,7 @@ your own utility names from them.
 
 ### The semantic model (the portable contract)
 
-Eight semantic roles. **Components only ever use these** — never a raw hex, never
+Eight semantic roles. **Components only ever use these** - never a raw hex, never
 a palette name.
 
 | Semantic token | Role | Typical use |
@@ -94,11 +94,13 @@ The `@theme` block re-exports each as a Tailwind color utility, so you get
 }
 ```
 
-### shadcn / ui-primitive compatibility layer
+### shadcn / ui-primitive compatibility layer (optional - not in this repo)
 
-So vendored shadcn-style primitives "just work" in both themes, the same `@theme`
-block also maps the semantic roles onto shadcn's names. Include this only if you
-vendor such components.
+**This block is not currently in `globals.css`** - the portfolio uses only the
+house semantic utilities, so it was removed. It is documented here as an optional
+add-on: if you vendor shadcn-style primitives that expect names like `bg-card` or
+`text-muted-foreground`, add this `@theme` block to map those names onto the same
+`--sem-*` values so the primitives theme automatically. Omit it otherwise.
 
 ```css
 @theme {
@@ -123,13 +125,13 @@ vendor such components.
 }
 ```
 
-### The palettes (this product's instantiation — reskin here)
+### The palettes (this product's instantiation - reskin here)
 
 Two palettes, swapped on `:root[data-theme]`. This is the **only** place raw hex
 lives. To rebrand a new app, edit these values and nothing else.
 
 ```css
-/* LIGHT (default) — cool: cobalt / azure / slate on light-gray */
+/* LIGHT (default) - cool: cobalt / azure / slate on light-gray */
 :root {
   --sem-ground: #eef1f5;
   --sem-surface: #ffffff;
@@ -142,7 +144,7 @@ lives. To rebrand a new app, edit these values and nothing else.
   color-scheme: light;
 }
 
-/* DARK (opt-in) — warm: amber / burnt-orange on espresso */
+/* DARK (opt-in) - warm: amber / burnt-orange on espresso */
 :root[data-theme="dark"] {
   --sem-ground: #0b0b0d;
   --sem-surface:#211811;
@@ -167,7 +169,7 @@ lives. To rebrand a new app, edit these values and nothing else.
 | Accent 2 | `#007FFF` azure | `#E0692A` burnt orange |
 | On-accent | `#FFFFFF` | `#1A1209` |
 
-**Usage.** Accent punctuates — one per view (a headline keyword, a filled button,
+**Usage.** Accent punctuates - one per view (a headline keyword, a filled button,
 the org name in a card, a link on hover). Keep large areas neutral. `--sem-ink`
 inverts between themes so text stays legible on the ground; `--sem-accent-ink` is
 per-theme so text on an accent fill always has contrast.
@@ -248,7 +250,7 @@ add a step here instead.
 - **Section rhythm:** sections are separated by `border-t border-line` and use
   vertical padding `py-20 md:py-28`.
 - **Radius:** pills/controls `rounded-full`; small media/panels `rounded-xl`;
-  hover rows `rounded-lg`. (Radius is conventional, not tokenized — keep to this
+  hover rows `rounded-lg`. (Radius is conventional, not tokenized - keep to this
   set. If you add card surfaces, standardize them on `rounded-2xl`.)
 - **`section[id]` / `:target`** get `scroll-margin-top: 5.5rem` so anchored jumps
   clear the fixed nav.
@@ -276,7 +278,7 @@ sync.
 ```
 
 **Two duration scales, by domain (intentional).** The `--t-*` tokens above drive
-*CSS-authored* transitions — the scroll reveal, the theme swap on `body`, the
+*CSS-authored* transitions - the scroll reveal, the theme swap on `body`, the
 skip link. Component *micro-interactions* written in Tailwind (hover states, the
 project rows) use Tailwind's own `duration-200 / 300 / 500` scale together with
 tokenized easing (`ease-[var(--e-out)]`). This keeps the two concerns readable in
@@ -285,7 +287,7 @@ their own idiom; don't mix them (no `duration-[420ms]` on a hover, no Tailwind
 
 JS mirror (`src/motion/tokens.ts`): `EASE.out/inOut/overshoot`,
 `DURATION.fast/base/slow` (seconds), `SPRING.soft/snappy/heavy` (for anything the
-user is touching — springs respond to velocity, beziers cannot), and
+user is touching - springs respond to velocity, beziers cannot), and
 `STAGGER.tight/base/loose` (`0.04 / 0.07 / 0.12`s) for grouped reveals.
 
 **Reduced motion is a first-class branch.** A global block forces all reveals
@@ -313,9 +315,9 @@ A matching `@media print` block also forces reveals visible and hides
 Tailwind v4 cascade layers, in this order: **theme → base → components →
 utilities**. Two rules with teeth follow from it (see §9).
 
-- `@layer base` — element resets and defaults (`box-sizing`, `body`, `h1–h4`,
+- `@layer base` - element resets and defaults (`box-sizing`, `body`, `h1–h4`,
   `a`, `img`, `:focus-visible`, `section[id]` scroll margin).
-- `@layer components` — the named classes: `.shell`, `.kicker`, `.eyebrow`,
+- `@layer components` - the named classes: `.shell`, `.kicker`, `.eyebrow`,
   `.skip`, and any marker classes.
 
 ---
@@ -332,7 +334,7 @@ toggle never flashes. `prefers-color-scheme` is deliberately **not** followed.
 try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch {}
 ```
 
-**Theme store** — read the theme as an *external store* via
+**Theme store** - read the theme as an *external store* via
 `useSyncExternalStore`, never `setState`-in-an-effect (avoids cascading renders
 and gives a stable SSR snapshot). Default snapshot is `"light"`. Setting the
 theme writes `data-theme` + `localStorage` and dispatches a `themechange` event
@@ -342,7 +344,7 @@ so every reader in the tab stays in sync. See [`src/lib/media.ts`](../src/lib/me
 const [theme, setTheme] = useTheme(); // "light" | "dark"
 ```
 
-**Toggle** — a button that reads the store and flips it; because it reads the
+**Toggle** - a button that reads the store and flips it; because it reads the
 same external store, it can never disagree with the page. See
 [`ThemeToggle`](../src/components/site/ThemeToggle.tsx).
 
@@ -375,7 +377,7 @@ Each encodes a bug that has actually shipped. Adopt them as review conventions.
 All components speak the token contract, so they theme automatically. Props below
 are the public API.
 
-### Reveal — the one house animation
+### Reveal - the one house animation
 `src/motion/Reveal.tsx` · client
 
 Scroll-in opacity + translateY, staggered by index. **Resting state is visible**
@@ -385,16 +387,16 @@ IntersectionObserver, 4s failsafe.
 
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `children` | `ReactNode` | — | — |
+| `children` | `ReactNode` | - | - |
 | `index` | `number` | `0` | Position in a group → stagger delay (`index × STAGGER.base`). |
 | `distance` | `number` | `18` | px travelled on entry. |
 | `as` | `"div"·"section"·"li"·"span"·"p"` | `"div"` | Rendered element. |
-| `className` | `string` | — | — |
+| `className` | `string` | - | - |
 
 The CSS side keys off `[data-reveal="hidden"|"shown"]` with
 `--reveal-distance` / `--reveal-delay`. Reduced motion forces shown.
 
-### Timeline — scroll-beam vertical timeline
+### Timeline - scroll-beam vertical timeline
 `src/components/ui/timeline.tsx` · client
 
 Sticky per-entry title and a vertical track whose accent gradient "beam" fills as
@@ -408,10 +410,10 @@ static beam.
 Beam is `bg-gradient-to-t from-accent via-accent-2 to-transparent`; dots use
 `border-line bg-surface`.
 
-### Bullets — markers that animate on view
+### Bullets - markers that animate on view
 `src/components/ui/bullets.tsx` · client
 
-A bullet list whose markers animate in **only when the list scrolls into view** —
+A bullet list whose markers animate in **only when the list scrolls into view** -
 its own IntersectionObserver (with a long 8s failsafe), decoupled from `Reveal`
 so the animation is never spent off-screen. Arms `data-bullets` on the `<ul>`;
 resting state is a plain visible marker.
@@ -424,7 +426,7 @@ Pattern to reuse: **an animated decoration must trigger on genuine viewport
 entry, not on a shared reveal whose failsafe may fire while it is below the
 fold.**
 
-### ProjectShowcase — hover-preview link list
+### ProjectShowcase - hover-preview link list
 `src/components/ui/project-showcase.tsx` · client
 
 Data-driven, 2-column link list with a cursor-following image/preview panel
@@ -435,19 +437,19 @@ Vendored self-contained (no registry URL).
 | --- | --- | --- |
 | `items` | `ShowcaseItem[]` | `{ title; description; meta; href; image? }`. External `href` opens in a new tab with `rel="noreferrer"`. |
 
-### CursorRibbon — the one WebGL exception
+### CursorRibbon - the one WebGL exception
 `src/components/site/CursorRibbon.tsx` · client
 
 A fixed, `pointer-events-none`, whole-site overlay drawing an accent-colored
 ribbon that trails the cursor (OGL `Polyline`, velocity-driven width, head→tail
 taper, theme-synced color). Takes no props. **Contained by design:** OGL is
 dynamically `import()`ed inside the effect (code-split, never server-rendered),
-and the effect no-ops — and never downloads OGL — unless the device is
+and the effect no-ops - and never downloads OGL - unless the device is
 hover-capable + fine-pointer with `prefers-reduced-motion` off. Adopt only with
 the same containment. Colour reads from `--sem-accent` and follows the theme via
 a `MutationObserver` on `data-theme`.
 
-### Nav — fixed header
+### Nav - fixed header
 `src/components/site/Nav.tsx` · client
 
 Fixed header that turns solid (border + blurred ground) once a sentinel scrolls
@@ -455,7 +457,7 @@ out of the hero, via IntersectionObserver (no scroll handler). Desktop links +
 Résumé button; mobile disclosure menu with `aria-expanded`/`aria-controls`.
 Content from a `site` data module (name, nav items, resume link).
 
-### ThemeToggle — light/dark switch
+### ThemeToggle - light/dark switch
 `src/components/site/ThemeToggle.tsx` · client
 
 Reads the theme store (§8) and flips it; `aria-label` names the target theme.
@@ -474,7 +476,7 @@ Moon in light, Sun in dark.
 - **Filled button:** `rounded-full bg-accent text-accent-ink` with a small
   `hover:-translate-y-0.5` on `--e-out`.
 - **Meta row:** `font-mono` uppercase with `tracking` and `text-ink-dim`.
-- **Kicker (`.kicker`):** handwritten section accent — `font-script`, azure in
+- **Kicker (`.kicker`):** handwritten section accent - `font-script`, azure in
   light / amber in dark.
 - **Skip link (`.skip`):** off-screen until focused; first focusable element.
 
@@ -490,7 +492,7 @@ Moon in light, Sun in dark.
   focusable element jumps to `#main`.
 - **Decorative vs meaningful:** decorative visuals carry `aria-hidden="true"`
   (markers, the cursor ribbon, timeline dots).
-- **Motion:** `prefers-reduced-motion` is honored globally — reveals shown,
+- **Motion:** `prefers-reduced-motion` is honored globally - reveals shown,
   transitions zeroed, loops flattened.
 - **Keyboard:** disclosure controls expose `aria-expanded` / `aria-controls`;
   toggles carry a state-naming `aria-label`.
@@ -500,12 +502,12 @@ Moon in light, Sun in dark.
 ## 13. Porting checklist
 
 - [ ] `@import "tailwindcss";` then the `@theme` block (§3–§6).
-- [ ] Two `:root` palette blocks (§3) — reskinned to your brand.
+- [ ] Two `:root` palette blocks (§3) - reskinned to your brand.
 - [ ] `:root` motion + layout block (§5–§6); mirror easings/durations in JS if used.
 - [ ] `@layer base` element defaults; `@layer components` for `.shell`, `.kicker`, `.eyebrow`, `.skip`.
 - [ ] `prefers-reduced-motion` + `print` blocks.
 - [ ] Theme boot script in `<head>` (§8).
 - [ ] Theme store + toggle if you want dark mode (§8).
 - [ ] Swap the four `--font-*` families; keep the four roles.
-- [ ] Bring in components as needed (§10) — they already speak the contract.
+- [ ] Bring in components as needed (§10) - they already speak the contract.
 - [ ] Adopt the rules with teeth (§9) in review.

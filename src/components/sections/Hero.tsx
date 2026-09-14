@@ -22,7 +22,7 @@ export function Hero() {
 
       <Reveal as="p" index={1} className="mt-8 max-w-[52ch] text-lead text-ink-dim">
         {site.description} I turn fuzzy requirements into things people actually
-        use — across enterprise AEM, full-stack web, and Android.
+        use - across enterprise AEM, full-stack web, and Android.
       </Reveal>
 
       <Reveal

@@ -110,10 +110,12 @@ export function Timeline({ data }: { data: TimelineEntry[] }) {
         className="absolute left-5 top-0 w-[2px] overflow-hidden bg-line/60"
         aria-hidden="true"
       >
+        {/* Initial hidden state is set via classes (h-0 opacity-0); the rAF
+            paint() then owns the inline height/opacity outright - no dual
+            ownership between a JSX style prop and imperative writes. */}
         <div
           ref={beamRef}
-          style={{ height: "0%", opacity: 0 }}
-          className="absolute inset-x-0 top-0 w-[2px] rounded-full bg-gradient-to-t from-accent via-accent-2 to-transparent transition-opacity duration-300"
+          className="absolute inset-x-0 top-0 h-0 w-[2px] rounded-full bg-gradient-to-t from-accent via-accent-2 to-transparent opacity-0 transition-opacity duration-300"
         />
       </div>
     </div>
