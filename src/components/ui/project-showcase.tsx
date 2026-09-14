@@ -7,8 +7,14 @@ import { ArrowUpRight } from "lucide-react"
 
 // Vendored from 21st.dev (@jatin-yadav05 / project-showcase). Kept as a
 // self-contained file - no registry URL - so upstream changes never affect us.
-// Adapted to be data-driven (items prop) and to render a themed fallback panel
-// when an item has no local image, so it works with content that has no cover.
+// Adapted to be data-driven (items prop), to render a themed fallback panel when
+// an item has no local image, and to use the house semantic utilities.
+//
+// The cursor-following preview is driven imperatively: the target/smoothed
+// positions live in refs and are written straight to the preview element's
+// style inside a rAF loop that only runs while an item is hovered. React state
+// holds only `hoveredIndex` (what actually changes the rendered markup), so the
+// component does not re-render per animation frame.
 
 export interface ShowcaseItem {
   title: string
@@ -22,73 +28,57 @@ export interface ShowcaseItem {
 
 export function ProjectShowcase({ items }: { items: ShowcaseItem[] }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [smoothPosition, setSmoothPosition] = useState({ x: 0, y: 0 })
-  // The container's viewport origin, captured in the move handler (never read
-  // from the ref during render, which react-hooks/refs forbids).
-  const [origin, setOrigin] = useState({ left: 0, top: 0 })
-  const [isVisible, setIsVisible] = useState(false)
+  const isVisible = hoveredIndex !== null
+
   const containerRef = useRef<HTMLDivElement>(null)
-  const animationRef = useRef<number | null>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
+  // Cursor target + smoothed position (relative to the container), and the
+  // container's viewport origin - all refs so updating them never re-renders.
+  const target = useRef({ x: 0, y: 0 })
+  const smooth = useRef({ x: 0, y: 0 })
+  const origin = useRef({ left: 0, top: 0 })
 
+  // The rAF loop runs ONLY while something is hovered; it eases `smooth` toward
+  // `target` and writes position straight to the preview node.
   useEffect(() => {
-    const lerp = (start: number, end: number, factor: number) => {
-      return start + (end - start) * factor
-    }
-
+    if (!isVisible) return
+    const lerp = (a: number, b: number, f: number) => a + (b - a) * f
+    let raf = 0
     const animate = () => {
-      setSmoothPosition((prev) => ({
-        x: lerp(prev.x, mousePosition.x, 0.15),
-        y: lerp(prev.y, mousePosition.y, 0.15),
-      }))
-      animationRef.current = requestAnimationFrame(animate)
-    }
-
-    animationRef.current = requestAnimationFrame(animate)
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
+      smooth.current.x = lerp(smooth.current.x, target.current.x, 0.15)
+      smooth.current.y = lerp(smooth.current.y, target.current.y, 0.15)
+      const el = previewRef.current
+      if (el) {
+        el.style.left = `${origin.current.left}px`
+        el.style.top = `${origin.current.top}px`
+        el.style.transform = `translate3d(${smooth.current.x + 20}px, ${smooth.current.y - 100}px, 0)`
       }
+      raf = requestAnimationFrame(animate)
     }
-  }, [mousePosition])
+    raf = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(raf)
+  }, [isVisible])
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect()
-      setOrigin({ left: rect.left, top: rect.top })
-      setMousePosition({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      })
-    }
-  }
-
-  const handleMouseEnter = (index: number) => {
-    setHoveredIndex(index)
-    setIsVisible(true)
-  }
-
-  const handleMouseLeave = () => {
-    setHoveredIndex(null)
-    setIsVisible(false)
+    const rect = containerRef.current?.getBoundingClientRect()
+    if (!rect) return
+    origin.current = { left: rect.left, top: rect.top }
+    target.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
   }
 
   return (
     <div ref={containerRef} onMouseMove={handleMouseMove} className="relative w-full">
-      {/* Cursor-following preview */}
+      {/* Cursor-following preview (position written imperatively in the rAF loop) */}
       <div
+        ref={previewRef}
         className="pointer-events-none fixed z-50 hidden overflow-hidden rounded-xl shadow-2xl md:block"
         style={{
-          left: origin.left,
-          top: origin.top,
-          transform: `translate3d(${smoothPosition.x + 20}px, ${smoothPosition.y - 100}px, 0)`,
           opacity: isVisible ? 1 : 0,
           scale: isVisible ? 1 : 0.8,
           transition: "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), scale 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
-        <div className="relative h-[180px] w-[280px] overflow-hidden rounded-xl bg-secondary">
+        <div className="relative h-[180px] w-[280px] overflow-hidden rounded-xl bg-surface">
           {items.map((item, index) =>
             item.image ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -117,7 +107,7 @@ export function ProjectShowcase({ items }: { items: ShowcaseItem[] }) {
               </div>
             ),
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ground/20 to-transparent" />
         </div>
       </div>
 
@@ -131,12 +121,12 @@ export function ProjectShowcase({ items }: { items: ShowcaseItem[] }) {
               target={external ? "_blank" : undefined}
               rel={external ? "noreferrer" : undefined}
               className="group block"
-              onMouseEnter={() => handleMouseEnter(index)}
-              onMouseLeave={handleMouseLeave}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
             >
-              <div className="relative border-t border-border py-5 transition-all duration-300 ease-out">
+              <div className="relative border-t border-line py-5 transition-all duration-300 ease-out">
                 <div
-                  className={`absolute inset-0 -mx-4 rounded-lg bg-secondary/50 px-4 transition-all duration-300 ease-out ${
+                  className={`absolute inset-0 -mx-4 rounded-lg bg-surface/50 px-4 transition-all duration-300 ease-out ${
                     hoveredIndex === index ? "scale-100 opacity-100" : "scale-95 opacity-0"
                   }`}
                 />
@@ -144,18 +134,18 @@ export function ProjectShowcase({ items }: { items: ShowcaseItem[] }) {
                 <div className="relative flex items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="inline-flex items-center gap-2">
-                      <h3 className="text-lg font-medium tracking-tight text-foreground">
+                      <h3 className="text-lg font-medium tracking-tight text-ink">
                         <span className="relative">
                           {item.title}
                           <span
-                            className={`absolute -bottom-0.5 left-0 h-px bg-foreground transition-all duration-300 ease-out ${
+                            className={`absolute -bottom-0.5 left-0 h-px bg-ink transition-all duration-300 ease-out ${
                               hoveredIndex === index ? "w-full" : "w-0"
                             }`}
                           />
                         </span>
                       </h3>
                       <ArrowUpRight
-                        className={`h-4 w-4 text-muted-foreground transition-all duration-300 ease-out ${
+                        className={`h-4 w-4 text-ink-dim transition-all duration-300 ease-out ${
                           hoveredIndex === index
                             ? "translate-x-0 translate-y-0 opacity-100"
                             : "-translate-x-2 translate-y-2 opacity-0"
@@ -165,7 +155,7 @@ export function ProjectShowcase({ items }: { items: ShowcaseItem[] }) {
 
                     <p
                       className={`mt-1 text-sm leading-relaxed transition-all duration-300 ease-out ${
-                        hoveredIndex === index ? "text-foreground/70" : "text-muted-foreground"
+                        hoveredIndex === index ? "text-ink/70" : "text-ink-dim"
                       }`}
                     >
                       {item.description}
@@ -173,8 +163,8 @@ export function ProjectShowcase({ items }: { items: ShowcaseItem[] }) {
                   </div>
 
                   <span
-                    className={`font-mono text-xs tabular-nums text-muted-foreground transition-all duration-300 ease-out ${
-                      hoveredIndex === index ? "text-foreground/60" : ""
+                    className={`font-mono text-xs tabular-nums text-ink-dim transition-all duration-300 ease-out ${
+                      hoveredIndex === index ? "text-ink/60" : ""
                     }`}
                   >
                     {item.meta}

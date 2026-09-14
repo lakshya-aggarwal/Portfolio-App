@@ -63,8 +63,8 @@ Three faces, each with one job:
   headlines and card titles. Weights 300 / 700 / 900 from the Adobe Fonts kit.
 - **Script - "shadows-into-light"** (`.kicker`): a handwritten accent for section
   kickers ("experience", "about") and the hero eyebrow. Small doses only.
-- **Body - Hanken Grotesk** (`font-body`, self-hosted via next/font): all running
-  text, labels, and the mono-style meta (via `font-mono` fallback).
+- **Body - Poppins** (`font-body`, from the Typekit kit): all running text,
+  labels, and the mono-style meta (via `font-mono` fallback).
 
 The Typekit kit is linked in `layout.tsx` `<head>`; `@theme` maps the families to
 `--font-display` / `--font-script` / `--font-body`.

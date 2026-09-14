@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { STAGGER } from "@/motion/tokens";
+import { useInViewFlag } from "@/motion/useInViewFlag";
 
 /**
  * L2 - the house reveal, and the only one.
@@ -10,12 +11,9 @@ import { STAGGER } from "@/motion/tokens";
  * the content with no hidden styling at all, so no-JS visitors, crawlers,
  * printers and full-page screenshots always get it. The hidden state is applied
  * on the client inside a layout effect - which runs before paint, so there is
- * no flash - and removed as soon as the element intersects.
- *
- * The earlier version used Motion's `whileInView` with `initial={{opacity: 0}}`.
- * That server-renders `opacity: 0` as an inline style, which means anything that
- * never fires an IntersectionObserver sees a permanently blank page. This is a
- * CSS transition instead, so it also costs no client JS beyond the observer.
+ * no flash - and removed as soon as the element intersects. That whole lifecycle
+ * lives in the shared `useInViewFlag` primitive; this component adds the stagger
+ * delay and the element tag.
  */
 
 type RevealProps = {
@@ -28,10 +26,6 @@ type RevealProps = {
   className?: string;
 };
 
-const prefersReduced = () =>
-  typeof window !== "undefined" &&
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
 export function Reveal({
   children,
   index = 0,
@@ -39,48 +33,11 @@ export function Reveal({
   as: Tag = "div",
   className,
 }: RevealProps) {
-  const ref = useRef<HTMLElement>(null);
-
-  // Before first paint: arm the hidden state, but only for elements that are
-  // actually below the fold. Anything already on screen is left alone, so the
-  // first thing a visitor sees never animates in.
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el || prefersReduced()) return;
-    const box = el.getBoundingClientRect();
-    if (box.top < window.innerHeight * 0.9) return;
-    el.dataset.reveal = "hidden";
-  }, []);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || prefersReduced()) return;
-    if (el.dataset.reveal !== "hidden") return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          el.dataset.reveal = "shown";
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "0px 0px -12% 0px" },
-    );
-    observer.observe(el);
-
-    // Belt and braces: if the observer somehow never fires, reveal anyway
-    // rather than leave content invisible.
-    const failsafe = window.setTimeout(() => {
-      el.dataset.reveal = "shown";
-      observer.disconnect();
-    }, 4000);
-
-    return () => {
-      window.clearTimeout(failsafe);
-      observer.disconnect();
-    };
-  }, []);
+  const ref = useInViewFlag<HTMLElement>({
+    attr: "reveal",
+    rootMargin: "0px 0px -12% 0px",
+    failsafeMs: 4000,
+  });
 
   return (
     <Tag

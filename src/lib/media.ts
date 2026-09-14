@@ -11,6 +11,15 @@ import { useSyncExternalStore } from "react";
 
 const emptyUnsubscribe = () => {};
 
+/**
+ * Snapshot read of the reduced-motion preference. SSR-safe (false on the
+ * server). This is the single home for the check - motion components import it
+ * rather than re-writing the matchMedia query.
+ */
+export const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 export type Theme = "dark" | "light";
 
 /** Fires whenever this tab changes the theme, so every reader stays in sync. */

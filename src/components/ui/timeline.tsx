@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { prefersReducedMotion } from "@/lib/media";
 
 /**
  * Scroll-beam timeline in the spirit of Aceternity's (manuarora700) component:
@@ -20,8 +21,8 @@ export interface TimelineEntry {
 
 export function Timeline({ data }: { data: TimelineEntry[] }) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const beamRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
-  const [progress, setProgress] = useState(0);
 
   // Measure the track height (grows/shrinks with content and viewport). The
   // ResizeObserver fires once on observe, so state is only set from its (async)
@@ -38,15 +39,22 @@ export function Timeline({ data }: { data: TimelineEntry[] }) {
 
   // Beam fill from scroll position. 0 as the block enters, 1 once it has mostly
   // scrolled through - the same feel as framer offset ["start 10%","end 50%"].
-  // All setState happens inside the rAF callback, never synchronously here.
+  // The beam height/opacity are written straight to the beam node in the rAF
+  // callback (not via state), so scrolling never re-renders the mapped entries.
   useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
     let raf = 0;
+    const paint = (p: number) => {
+      const beam = beamRef.current;
+      if (!beam) return;
+      beam.style.height = `${p * 100}%`;
+      beam.style.opacity = p > 0.02 ? "1" : "0";
+    };
     const update = () => {
       if (reduced) {
-        setProgress(1);
+        paint(1);
         return;
       }
       const rect = el.getBoundingClientRect();
@@ -54,7 +62,7 @@ export function Timeline({ data }: { data: TimelineEntry[] }) {
       const startLine = vh * 0.15;
       const span = rect.height - vh * 0.5;
       const p = span > 0 ? (startLine - rect.top) / span : rect.top <= startLine ? 1 : 0;
-      setProgress(Math.min(1, Math.max(0, p)));
+      paint(Math.min(1, Math.max(0, p)));
     };
     const onScroll = () => {
       cancelAnimationFrame(raf);
@@ -103,7 +111,8 @@ export function Timeline({ data }: { data: TimelineEntry[] }) {
         aria-hidden="true"
       >
         <div
-          style={{ height: `${progress * 100}%`, opacity: progress > 0.02 ? 1 : 0 }}
+          ref={beamRef}
+          style={{ height: "0%", opacity: 0 }}
           className="absolute inset-x-0 top-0 w-[2px] rounded-full bg-gradient-to-t from-accent via-accent-2 to-transparent transition-opacity duration-300"
         />
       </div>

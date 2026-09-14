@@ -7,7 +7,8 @@
    Two themed palettes, swapped on :root[data-theme]:
      light  - cool: cobalt / azure / slate on a light gray canvas
      dark   - warm: amber / burnt-orange on espresso near-black
-   Motion easings are mirrored in src/motion/tokens.ts; change both or neither.
+   This file is the single source of truth for easings and durations; the JS
+   side references these CSS vars rather than re-declaring them.
    ============================================================ */
 
 @theme {
@@ -21,28 +22,8 @@
   --color-accent-2: var(--sem-accent-2);
   --color-accent-ink: var(--sem-accent-ink);
 
-  /* shadcn compatibility - kept ui primitives are written against these */
-  --color-background: var(--sem-ground);
-  --color-foreground: var(--sem-ink);
-  --color-card: var(--sem-surface);
-  --color-card-foreground: var(--sem-ink);
-  --color-popover: var(--sem-surface);
-  --color-popover-foreground: var(--sem-ink);
-  --color-primary: var(--sem-accent);
-  --color-primary-foreground: var(--sem-accent-ink);
-  --color-secondary: var(--sem-surface);
-  --color-secondary-foreground: var(--sem-ink);
-  --color-muted: var(--sem-surface);
-  --color-muted-foreground: var(--sem-ink-dim);
-  --color-accent-foreground: var(--sem-accent-ink);
-  --color-destructive: #b5432c;
-  --color-destructive-foreground: #ffffff;
-  --color-border: var(--sem-line);
-  --color-input: var(--sem-line);
-  --color-ring: var(--sem-accent);
-
-  /* Fonts. Display + script from the Adobe Fonts kit (see layout <head>);
-     body self-hosted via next/font. */
+  /* Fonts. Display + script + body all from the Adobe Fonts (Typekit) kit
+     linked in layout's <head>. */
   --font-display: "balboa", "Arial Narrow", sans-serif;
   --font-script: "shadows-into-light", "Comic Sans MS", cursive;
   --font-body: "poppins", ui-sans-serif, system-ui, sans-serif;
@@ -85,7 +66,7 @@
   color-scheme: dark;
 }
 
-/* ---- motion: easings mirrored in src/motion/tokens.ts ---- */
+/* ---- motion: the single source of truth for easings + durations ---- */
 :root {
   --e-out: cubic-bezier(0.22, 1, 0.36, 1);
   --e-in-out: cubic-bezier(0.65, 0, 0.35, 1);

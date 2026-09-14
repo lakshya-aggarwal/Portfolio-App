@@ -21,8 +21,8 @@ will. If a stale route type lingers in `.next/` after deleting a page, `rm -rf
 ## Stack
 
 Next.js 16 (App Router) - React 19 - TypeScript strict - Tailwind v4 (CSS-first,
-no JS config). Fonts: Balboa (display) and Shadows Into Light (script accent)
-from an Adobe Fonts / Typekit kit, plus Hanken Grotesk (body) via next/font.
+no JS config). Fonts: Balboa (display), Shadows Into Light (script accent) and
+Poppins (body), all from an Adobe Fonts / Typekit kit linked in `<head>`.
 Icons: lucide-react. `@/*` maps to `./src/*`. Deployment target is static /
 Vercel; there is no backend.
 
@@ -78,10 +78,9 @@ type scale (`text-h1/h2/h3/lead`), and the fonts (`font-display`, `font-body`).
 
 The Typekit kit is linked in `layout.tsx`'s `<head>`
 (`https://use.typekit.net/sam4epv.css`). Family names: `"balboa"` (display,
-weights 300/700/900) and `"shadows-into-light"` (script). The `@theme` block maps
-them to `--font-display` and `--font-script`; body is `--font-body` (Hanken
-Grotesk, self-hosted via next/font). The `.kicker` class is the handwritten
-section accent.
+weights 300/700/900), `"shadows-into-light"` (script) and `"poppins"` (body).
+The `@theme` block maps them to `--font-display`, `--font-script` and
+`--font-body`. The `.kicker` class is the handwritten section accent.
 
 ## Rules with teeth
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { prefersReducedMotion } from "@/lib/media";
 
 /**
  * An interactive WebGL ribbon that trails the cursor, rendered on a fixed,
@@ -30,13 +31,14 @@ export function CursorRibbon() {
     // Only a hover-capable, fine-pointer device with motion allowed gets the
     // effect (and, via the early return, ever downloads OGL).
     const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!fine || reduce) return;
+    if (!fine || prefersReducedMotion()) return;
 
     let raf = 0;
     let disposed = false;
     let cleanup = () => {};
 
+    // Live accent from the theme token; the literal fallback mirrors the light
+    // --sem-accent in globals.css for the rare case the var reads empty.
     const accentHex = () =>
       getComputedStyle(document.documentElement)
         .getPropertyValue("--sem-accent")
