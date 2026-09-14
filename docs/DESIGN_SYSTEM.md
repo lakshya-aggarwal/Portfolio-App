@@ -210,12 +210,27 @@ not invent sizes off the scale.**
   --text-h2:    clamp(1.9rem,  1.4rem + 2.2vw,  3.2rem);
   --text-h1:    clamp(2.8rem,  1.5rem + 5.6vw,  6.5rem);
   --text-mega:  clamp(4rem,    1rem   + 13vw,   13rem);
+
+  /* fixed micro-steps below the fluid scale, for small UI labels / meta / tags.
+     Custom names (not xs/sm) so they never override Tailwind's built-in sizes. */
+  --text-tag:  0.68rem; /* tags, fine meta */
+  --text-meta: 0.72rem; /* mono meta rows, nav/link labels */
+  --text-note: 0.95rem; /* dense body-adjacent copy (bullets) */
+
+  /* letter-spacing steps for uppercase labels (custom names, non-colliding) */
+  --tracking-tag:     0.08em;
+  --tracking-eyebrow: 0.12em;
+  --tracking-label:   0.14em;
 }
 ```
 
-`text-micro` · `text-body` · `text-lead` · `text-h3` · `text-h2` · `text-h1` ·
-`text-mega`. Base element defaults (`h1–h4` → display face, tight leading,
-`text-wrap: balance`; `p` → `text-wrap: pretty`) live in `@layer base`.
+Fluid heads/body: `text-micro` · `text-body` · `text-lead` · `text-h3` ·
+`text-h2` · `text-h1` · `text-mega`. Fixed micro-labels: `text-tag` ·
+`text-meta` · `text-note`, with `tracking-tag` · `tracking-eyebrow` ·
+`tracking-label` for uppercase spacing. Base element defaults (`h1-h4` → display
+face, tight leading, `text-wrap: balance`; `p` → `text-wrap: pretty`) live in
+`@layer base`. Do not reintroduce arbitrary `text-[…]` / `tracking-[…]` values;
+add a step here instead.
 
 ---
 
@@ -232,8 +247,9 @@ not invent sizes off the scale.**
   with `--g-margin` inline padding. Wrap every section's content in it.
 - **Section rhythm:** sections are separated by `border-t border-line` and use
   vertical padding `py-20 md:py-28`.
-- **Radius:** cards `rounded-2xl`; pills/controls `rounded-full`; small media
-  `rounded-xl`. (Radius is conventional, not tokenized — keep to these three.)
+- **Radius:** pills/controls `rounded-full`; small media/panels `rounded-xl`;
+  hover rows `rounded-lg`. (Radius is conventional, not tokenized — keep to this
+  set. If you add card surfaces, standardize them on `rounded-2xl`.)
 - **`section[id]` / `:target`** get `scroll-margin-top: 5.5rem` so anchored jumps
   clear the fixed nav.
 
@@ -241,9 +257,10 @@ not invent sizes off the scale.**
 
 ## 6. Motion
 
-Durations and easings exist **twice**, intentionally: as CSS custom properties
-(for CSS transitions) and in `src/motion/tokens.ts` (for JS/rAF). They are the
-only duplicated values in the system — **change both or neither.**
+`globals.css` is the single source of truth for easings and durations; the JS
+side (`src/motion/tokens.ts`) holds only the reveal `STAGGER` step and references
+the CSS vars for everything else, so there is no duplicated timing to keep in
+sync.
 
 ```css
 :root {
@@ -257,6 +274,14 @@ only duplicated values in the system — **change both or neither.**
   --t-slow: 800ms;
 }
 ```
+
+**Two duration scales, by domain (intentional).** The `--t-*` tokens above drive
+*CSS-authored* transitions — the scroll reveal, the theme swap on `body`, the
+skip link. Component *micro-interactions* written in Tailwind (hover states, the
+project rows) use Tailwind's own `duration-200 / 300 / 500` scale together with
+tokenized easing (`ease-[var(--e-out)]`). This keeps the two concerns readable in
+their own idiom; don't mix them (no `duration-[420ms]` on a hover, no Tailwind
+`duration-*` on the reveal).
 
 JS mirror (`src/motion/tokens.ts`): `EASE.out/inOut/overshoot`,
 `DURATION.fast/base/slow` (seconds), `SPRING.soft/snappy/heavy` (for anything the

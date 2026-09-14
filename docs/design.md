@@ -81,15 +81,24 @@ do not invent sizes off the scale.
   (`--g-margin`, clamped 1.25-3rem).
 - Sections are separated by `border-t border-line` and vertical rhythm of
   `py-20 md:py-28`.
-- Cards use `rounded-2xl border border-line bg-surface` with `p-6 md:p-8`, and
-  lift their border toward accent on hover.
-- Tag/skill pills: `rounded-full border border-line` with small uppercase text.
+- Card surfaces, when used, take `rounded-2xl border border-line bg-surface` with
+  `p-6 md:p-8` and lift their border toward accent on hover. (The current
+  sections favour rules and rows over card surfaces; project links use
+  `rounded-lg`, media panels `rounded-xl`.)
+- Tag/skill pills: `rounded-full border border-line` with small uppercase text
+  (`text-tag`/`text-meta` + `tracking-tag`).
 
 ## Motion
 
 One reveal (`src/motion/Reveal.tsx`): a short opacity + translateY on scroll-in,
-staggered by index. Resting state is visible (SSR-safe). Buttons and cards have
+staggered by index. Resting state is visible (SSR-safe). Buttons and rows have
 small hover transforms. Everything collapses under `prefers-reduced-motion`.
+
+Two duration scales, by domain: `--t-fast/base/slow` govern CSS-authored
+transitions (the reveal, the theme swap, the skip link); component
+micro-interactions written in Tailwind use its `duration-200/300/500` scale with
+tokenized easing (`ease-[var(--e-out)]`). Easings live only in `globals.css`
+(`--e-*`); `src/motion/tokens.ts` keeps just the reveal `STAGGER`.
 
 **Cursor ribbon.** `src/components/site/CursorRibbon.tsx` draws a neon,
 accent-coloured WebGL ribbon that trails the pointer across the whole site (a

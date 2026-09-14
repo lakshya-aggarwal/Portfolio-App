@@ -35,6 +35,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  // Static metadata can't read CSS vars; these mirror --sem-ground in
+  // globals.css (dark #0b0b0d / light #eef1f5). Keep them in sync with the token.
   themeColor: [
     { media: "(prefers-color-scheme: dark)", color: "#0b0b0d" },
     { media: "(prefers-color-scheme: light)", color: "#eef1f5" },

@@ -32,7 +32,7 @@ export function Hero() {
       >
         <Link
           href="/#work"
-          className="group inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-[0.78rem] font-semibold uppercase tracking-[0.08em] text-accent-ink transition-transform duration-200 ease-[var(--e-out)] hover:-translate-y-0.5"
+          className="group inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-micro font-semibold uppercase tracking-tag text-accent-ink transition-transform duration-200 ease-[var(--e-out)] hover:-translate-y-0.5"
         >
           See my work
           <ArrowDown
@@ -44,7 +44,7 @@ export function Hero() {
         <a
           href={site.resume}
           download
-          className="inline-flex items-center gap-2 rounded-full border border-line px-6 py-3 text-[0.78rem] font-semibold uppercase tracking-[0.08em] text-ink transition-colors duration-200 hover:border-accent hover:text-accent"
+          className="inline-flex items-center gap-2 rounded-full border border-line px-6 py-3 text-micro font-semibold uppercase tracking-tag text-ink transition-colors duration-200 hover:border-accent hover:text-accent"
         >
           Résumé
         </a>

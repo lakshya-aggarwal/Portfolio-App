@@ -25,7 +25,7 @@ export function Bullets({ points }: { points: string[] }) {
   return (
     <ul ref={ref} className="mt-3 flex list-none flex-col gap-2 p-0">
       {points.map((pt, i) => (
-        <li key={pt} className="flex gap-3 text-[0.95rem] text-ink-dim">
+        <li key={pt} className="flex gap-3 text-note text-ink-dim">
           <span
             aria-hidden="true"
             className="exp-dot shrink-0"

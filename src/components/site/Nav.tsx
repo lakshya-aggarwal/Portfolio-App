@@ -52,7 +52,7 @@ export function Nav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-ink-dim transition-colors duration-200 hover:text-ink"
+                className="text-micro font-semibold uppercase tracking-eyebrow text-ink-dim transition-colors duration-200 hover:text-ink"
               >
                 {item.label}
               </Link>
@@ -60,7 +60,7 @@ export function Nav() {
             <a
               href={site.resume}
               download
-              className="rounded-full bg-accent px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-accent-ink transition-transform duration-200 ease-[var(--e-out)] hover:-translate-y-0.5"
+              className="rounded-full bg-accent px-4 py-2 text-meta font-semibold uppercase tracking-tag text-accent-ink transition-transform duration-200 ease-[var(--e-out)] hover:-translate-y-0.5"
             >
               Résumé
             </a>
@@ -96,7 +96,7 @@ export function Nav() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="py-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-ink-dim"
+                className="py-2.5 text-micro font-semibold uppercase tracking-eyebrow text-ink-dim"
               >
                 {item.label}
               </Link>
@@ -105,7 +105,7 @@ export function Nav() {
               href={site.resume}
               download
               onClick={() => setOpen(false)}
-              className="py-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-accent"
+              className="py-2.5 text-micro font-semibold uppercase tracking-eyebrow text-accent"
             >
               Résumé
             </a>

@@ -30,7 +30,7 @@ export function Contact() {
               href={s.href}
               target="_blank"
               rel="noreferrer"
-              className="font-mono text-[0.72rem] uppercase tracking-[0.14em] text-ink-dim transition-colors duration-200 hover:text-ink"
+              className="font-mono text-meta uppercase tracking-label text-ink-dim transition-colors duration-200 hover:text-ink"
             >
               {s.label}
             </a>

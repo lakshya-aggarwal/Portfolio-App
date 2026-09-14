@@ -21,7 +21,7 @@ export function Experience() {
           <h3 className="font-display text-h3 uppercase leading-none text-ink">
             {e.org}
           </h3>
-          <p className="mt-1 font-mono text-[0.72rem] uppercase tracking-[0.12em] text-ink-dim">
+          <p className="mt-1 font-mono text-meta uppercase tracking-eyebrow text-ink-dim">
             {e.location}
           </p>
 
@@ -36,7 +36,7 @@ export function Experience() {
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
                   <p className="font-semibold text-accent">{pos.role}</p>
                   {multiRole && (
-                    <p className="font-mono text-[0.66rem] uppercase tracking-[0.1em] text-ink-dim">
+                    <p className="font-mono text-tag uppercase tracking-eyebrow text-ink-dim">
                       {pos.period}
                     </p>
                   )}
@@ -47,7 +47,7 @@ export function Experience() {
                   {pos.tags.map((t) => (
                     <span
                       key={t}
-                      className="rounded-full border border-line px-3 py-1 text-[0.68rem] font-medium uppercase tracking-[0.08em] text-ink-dim"
+                      className="rounded-full border border-line px-3 py-1 text-tag font-medium uppercase tracking-tag text-ink-dim"
                     >
                       {t}
                     </span>

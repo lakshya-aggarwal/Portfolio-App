@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
 import { ArrowUpRight } from "lucide-react"
+import { prefersReducedMotion } from "@/lib/media"
 
 // Vendored from 21st.dev (@jatin-yadav05 / project-showcase). Kept as a
 // self-contained file - no registry URL - so upstream changes never affect us.
@@ -42,17 +43,25 @@ export function ProjectShowcase({ items }: { items: ShowcaseItem[] }) {
   // `target` and writes position straight to the preview node.
   useEffect(() => {
     if (!isVisible) return
+    const place = () => {
+      const el = previewRef.current
+      if (!el) return
+      el.style.left = `${origin.current.left}px`
+      el.style.top = `${origin.current.top}px`
+      el.style.transform = `translate3d(${smooth.current.x + 20}px, ${smooth.current.y - 100}px, 0)`
+    }
+    // Reduced motion: snap to the cursor once, no easing loop.
+    if (prefersReducedMotion()) {
+      smooth.current = { ...target.current }
+      place()
+      return
+    }
     const lerp = (a: number, b: number, f: number) => a + (b - a) * f
     let raf = 0
     const animate = () => {
       smooth.current.x = lerp(smooth.current.x, target.current.x, 0.15)
       smooth.current.y = lerp(smooth.current.y, target.current.y, 0.15)
-      const el = previewRef.current
-      if (el) {
-        el.style.left = `${origin.current.left}px`
-        el.style.top = `${origin.current.top}px`
-        el.style.transform = `translate3d(${smooth.current.x + 20}px, ${smooth.current.y - 100}px, 0)`
-      }
+      place()
       raf = requestAnimationFrame(animate)
     }
     raf = requestAnimationFrame(animate)
@@ -101,7 +110,7 @@ export function ProjectShowcase({ items }: { items: ShowcaseItem[] }) {
                 style={{ opacity: hoveredIndex === index ? 1 : 0 }}
               >
                 <span className="font-display text-2xl uppercase text-ink">{item.title}</span>
-                <span className="font-mono text-[0.62rem] uppercase tracking-[0.14em] text-ink-dim">
+                <span className="font-mono text-tag uppercase tracking-label text-ink-dim">
                   {item.meta}
                 </span>
               </div>

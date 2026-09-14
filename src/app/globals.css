@@ -37,6 +37,19 @@
   --text-h2: clamp(1.9rem, 1.4rem + 2.2vw, 3.2rem);
   --text-h1: clamp(2.8rem, 1.5rem + 5.6vw, 6.5rem);
   --text-mega: clamp(4rem, 1rem + 13vw, 13rem);
+
+  /* fixed micro-type steps below the fluid scale, for small UI labels, mono
+     meta rows, tags and dense list copy. Custom names (not xs/sm) so they do
+     not override Tailwind's built-in text sizes. */
+  --text-tag: 0.68rem; /* tags, fine meta */
+  --text-meta: 0.72rem; /* mono meta rows, link/nav labels */
+  --text-note: 0.95rem; /* dense body-adjacent copy (bullets) */
+
+  /* letter-spacing steps for uppercase labels. Custom names so they do not
+     override Tailwind's built-in tracking-* utilities. */
+  --tracking-tag: 0.08em;
+  --tracking-eyebrow: 0.12em;
+  --tracking-label: 0.14em;
 }
 
 /* ---- theme: LIGHT by default (cool), DARK on demand (warm) ---- */
