@@ -77,7 +77,7 @@ do not invent sizes off the scale.
 
 ## Layout and spacing
 
-- `.shell` centres content at `--g-max` (78rem) with fluid side padding
+- `.shell` centres content at `--g-max` (64rem) with fluid side padding
   (`--g-margin`, clamped 1.25-3rem).
 - Sections are separated by `border-t border-line` and vertical rhythm of
   `py-20 md:py-28`.
