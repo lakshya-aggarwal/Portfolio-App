@@ -1,0 +1,225 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { prefersReducedMotion } from "@/lib/media";
+
+/**
+ * An interactive WebGL ribbon that trails the cursor, rendered on a fixed,
+ * pointer-events-none overlay across the whole site.
+ *
+ * This is a deliberate, documented exception to the "no WebGL" rule in
+ * CLAUDE.md / docs/design.md - see the "Cursor ribbon" note there. To keep the
+ * cost contained:
+ *   - OGL (~50KB, zero deps) is dynamically imported *inside* the effect, so it
+ *     is code-split out of the initial bundle and never loaded on the server.
+ *   - It only initializes on a fine-pointer, hover-capable device with motion
+ *     allowed - touch/mobile and prefers-reduced-motion visitors get nothing and
+ *     never download OGL.
+ *
+ * The ribbon is an OGL Polyline: ~30 points that lag toward the cursor, rebuilt
+ * into a ribbon mesh each frame. A custom fragment shader gives it a neon core
+ * (bright centre feathering to transparent edges) and a tail that dissolves. Its
+ * colour is read from the live --sem-accent token and follows the theme toggle.
+ */
+export function CursorRibbon() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Only a hover-capable, fine-pointer device with motion allowed gets the
+    // effect (and, via the early return, ever downloads OGL).
+    const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (!fine || prefersReducedMotion()) return;
+
+    let raf = 0;
+    let disposed = false;
+    let cleanup = () => {};
+
+    // Live accent from the theme token; the literal fallback mirrors the light
+    // --sem-accent in globals.css for the rare case the var reads empty.
+    const accentHex = () =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--sem-accent")
+        .trim() || "#0047ab";
+
+    (async () => {
+      const { Renderer, Color, Polyline, Vec3 } = await import("ogl");
+      if (disposed) return;
+
+      const renderer = new Renderer({
+        canvas,
+        dpr: Math.min(window.devicePixelRatio, 2),
+        alpha: true,
+      });
+      const gl = renderer.gl;
+      gl.clearColor(0, 0, 0, 0);
+
+      // Screen-space vertex shader: the points are already in clip space
+      // (-1..1), so we do NOT use camera matrices (we render without a camera).
+      // Aspect-corrected miter + pixel thickness, adapted from OGL's Polyline
+      // default with the modelView/projection multiply removed.
+      const vertex = /* glsl */ `
+        precision highp float;
+        attribute vec3 position;
+        attribute vec3 next;
+        attribute vec3 prev;
+        attribute vec2 uv;
+        attribute float side;
+        uniform vec2 uResolution;
+        uniform float uDPR;
+        uniform float uThickness;
+        uniform float uMiter;
+        varying vec2 vUv;
+        vec4 getPosition() {
+          vec4 current = vec4(position, 1.0);
+          vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
+          vec2 currentScreen = current.xy * aspect;
+          vec2 nextScreen = next.xy * aspect;
+          vec2 prevScreen = prev.xy * aspect;
+          vec2 dir1 = normalize(currentScreen - prevScreen);
+          vec2 dir2 = normalize(nextScreen - currentScreen);
+          vec2 dir = normalize(dir1 + dir2);
+          vec2 normal = vec2(-dir.y, dir.x);
+          normal /= mix(1.0, max(0.3, dot(normal, vec2(-dir1.y, dir1.x))), uMiter);
+          normal /= aspect;
+          float pixelWidth = 1.0 / (uResolution.y / uDPR);
+          // Taper the width head -> tail (uv.y: 0 = head) for a brush shape.
+          float widthTaper = 1.0 - uv.y * 0.8;
+          normal *= pixelWidth * uThickness * widthTaper;
+          current.xy -= normal * side;
+          return current;
+        }
+        void main() {
+          vUv = uv;
+          gl_Position = getPosition();
+        }
+      `;
+
+      // Subtle flat accent stroke: soft feathered edges across the width
+      // (vUv.x) and a tail that dissolves along the length (vUv.y, 0 = head at
+      // the cursor). No white core, low overall opacity - a quiet ink line, not
+      // a neon tube.
+      const fragment = /* glsl */ `
+        precision highp float;
+        uniform vec3 uColor;
+        uniform float uOpacity;
+        varying vec2 vUv;
+        void main() {
+          float edge = 1.0 - abs(vUv.x - 0.5) * 2.0;
+          float shape = smoothstep(0.0, 0.5, edge);
+          float taper = 1.0 - vUv.y;
+          gl_FragColor = vec4(uColor, shape * taper * uOpacity);
+        }
+      `;
+
+      const count = 32;
+      const points = Array.from({ length: count }, () => new Vec3());
+
+      const polyline = new Polyline(gl, {
+        points,
+        vertex,
+        fragment,
+        uniforms: {
+          uColor: { value: new Color(accentHex()) },
+          uThickness: { value: 5 },
+          uOpacity: { value: 0.9 },
+        },
+      });
+      // Alpha blend so the neon reads on both the light and dark canvas.
+      polyline.program.transparent = true;
+      polyline.program.setBlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+      const resize = () => {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        polyline.resize();
+      };
+      resize();
+      window.addEventListener("resize", resize);
+
+      // Cursor target in clip space (-1..1, y up). Seed off-screen; the first
+      // pointer move snaps every point to the cursor so no line whips in from 0,0.
+      const mouse = new Vec3(-2, -2, 0);
+      let seeded = false;
+      const onMove = (e: PointerEvent) => {
+        mouse.set(
+          (e.clientX / window.innerWidth) * 2 - 1,
+          (e.clientY / window.innerHeight) * -2 + 1,
+          0,
+        );
+        if (!seeded) {
+          seeded = true;
+          for (const p of points) p.copy(mouse);
+        }
+      };
+      window.addEventListener("pointermove", onMove);
+
+      // Keep the ribbon colour in sync with the theme toggle.
+      const themeObserver = new MutationObserver(() => {
+        polyline.program.uniforms.uColor.value.set(accentHex());
+      });
+      themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"],
+      });
+
+      // Velocity-driven width: fast cursor motion fattens the ribbon, a still
+      // cursor lets it thin back down - so each gesture draws a different shape.
+      const lastMouse = new Vec3().copy(mouse);
+      let thickness = 3;
+      const baseThickness = 3;
+      const speedToWidth = 90; // clip-space units/frame -> extra px
+      const maxWidth = 26;
+
+      const update = () => {
+        raf = requestAnimationFrame(update);
+
+        // Frame-to-frame cursor speed (clip space), smoothed into the width.
+        const speed = Math.hypot(mouse.x - lastMouse.x, mouse.y - lastMouse.y);
+        lastMouse.copy(mouse);
+        const target = Math.min(baseThickness + speed * speedToWidth, maxWidth);
+        thickness += (target - thickness) * 0.18;
+        polyline.program.uniforms.uThickness.value = thickness;
+
+        // High -> low so each point reads its predecessor's *previous* position,
+        // producing the trailing lag. Head pins tightly to the cursor for
+        // responsiveness; the tail follows.
+        for (let i = points.length - 1; i >= 0; i--) {
+          const p = points[i];
+          if (!p) continue;
+          if (i === 0) {
+            p.lerp(mouse, 0.9);
+          } else {
+            const prev = points[i - 1];
+            if (prev) p.lerp(prev, 0.62);
+          }
+        }
+        polyline.updateGeometry();
+        renderer.render({ scene: polyline.mesh });
+      };
+      raf = requestAnimationFrame(update);
+
+      cleanup = () => {
+        cancelAnimationFrame(raf);
+        window.removeEventListener("resize", resize);
+        window.removeEventListener("pointermove", onMove);
+        themeObserver.disconnect();
+        gl.getExtension("WEBGL_lose_context")?.loseContext();
+      };
+    })();
+
+    return () => {
+      disposed = true;
+      cleanup();
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-hidden="true"
+      className="no-print pointer-events-none fixed inset-0 z-40 h-full w-full"
+    />
+  );
+}

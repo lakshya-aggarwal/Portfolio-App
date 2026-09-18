@@ -1,0 +1,340 @@
+@import "tailwindcss";
+
+/* ============================================================
+   L0 - tokens. Nothing above this layer invents a colour, a curve,
+   a duration or a grid step.
+
+   Two themed palettes, swapped on :root[data-theme]:
+     light  - cool: cobalt / azure / slate on a light gray canvas
+     dark   - warm: amber / burnt-orange on espresso near-black
+   This file is the single source of truth for easings and durations; the JS
+   side references these CSS vars rather than re-declaring them.
+   ============================================================ */
+
+@theme {
+  /* semantic aliases - components only ever use these */
+  --color-ground: var(--sem-ground);
+  --color-surface: var(--sem-surface);
+  --color-line: var(--sem-line);
+  --color-ink: var(--sem-ink);
+  --color-ink-dim: var(--sem-ink-dim);
+  --color-accent: var(--sem-accent);
+  --color-accent-2: var(--sem-accent-2);
+  --color-accent-ink: var(--sem-accent-ink);
+
+  /* Fonts. Display + script + body all from the Adobe Fonts (Typekit) kit
+     linked in layout's <head>. */
+  --font-display: "balboa", "Arial Narrow", sans-serif;
+  --font-script: "shadows-into-light", "Comic Sans MS", cursive;
+  --font-body: "poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* fluid type scale */
+  --text-micro: clamp(0.78rem, 0.76rem + 0.1vw, 0.84rem);
+  --text-body: clamp(1rem, 0.97rem + 0.15vw, 1.08rem);
+  --text-lead: clamp(1.1rem, 1rem + 0.5vw, 1.35rem);
+  --text-h3: clamp(1.3rem, 1.15rem + 0.7vw, 1.7rem);
+  --text-h2: clamp(1.9rem, 1.4rem + 2.2vw, 3.2rem);
+  --text-h1: clamp(2.8rem, 1.5rem + 5.6vw, 6.5rem);
+  --text-mega: clamp(4rem, 1rem + 13vw, 13rem);
+
+  /* fixed micro-type steps below the fluid scale, for small UI labels, mono
+     meta rows, tags and dense list copy. Custom names (not xs/sm) so they do
+     not override Tailwind's built-in text sizes. */
+  --text-tag: 0.68rem; /* tags, fine meta */
+  --text-meta: 0.72rem; /* mono meta rows, link/nav labels */
+  --text-note: 0.95rem; /* dense body-adjacent copy (bullets) */
+
+  /* letter-spacing steps for uppercase labels. Custom names so they do not
+     override Tailwind's built-in tracking-* utilities. */
+  --tracking-tag: 0.08em;
+  --tracking-eyebrow: 0.12em;
+  --tracking-label: 0.14em;
+}
+
+/* ---- theme: LIGHT by default (cool), DARK on demand (warm) ---- */
+:root {
+  --sem-ground: #eef1f5;
+  --sem-surface: #ffffff;
+  --sem-line: #d7dde5;
+  --sem-ink: #0e1116;
+  --sem-ink-dim: #55636f;
+  --sem-accent: #0047ab; /* cobalt */
+  --sem-accent-2: #007fff; /* azure  */
+  --sem-accent-ink: #ffffff;
+  color-scheme: light;
+}
+/* Light is the default for everyone; dark is opt-in via the toggle and
+   remembered in localStorage. We deliberately do NOT auto-switch on
+   prefers-color-scheme: the light palette is the primary identity. */
+:root[data-theme="dark"] {
+  --sem-ground: #0b0b0d;
+  --sem-surface: #211811;
+  --sem-line: #362a1e;
+  --sem-ink: #f4efe6;
+  --sem-ink-dim: #b0a288;
+  --sem-accent: #e9a23c; /* amber */
+  --sem-accent-2: #e0692a; /* burnt orange */
+  --sem-accent-ink: #1a1209;
+  color-scheme: dark;
+}
+
+/* ---- motion: the single source of truth for easings + durations ---- */
+:root {
+  --e-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --e-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --e-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --e-linear: linear;
+
+  --t-fast: 180ms;
+  --t-base: 420ms;
+  --t-slow: 800ms;
+
+  --g-max: 64rem;
+  --g-margin: clamp(1.25rem, 5vw, 3rem);
+}
+
+/* ============================================================
+   base - MUST live inside @layer base. Unlayered rules beat every
+   utility, so a bare `a { color: inherit }` here would kill text-* colour
+   utilities. Layer order: theme -> base -> components -> utilities.
+   ============================================================ */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background: var(--sem-ground);
+    color: var(--sem-ink);
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    transition:
+      background var(--t-base) var(--e-out),
+      color var(--t-base) var(--e-out);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: 0.005em;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img,
+  video,
+  canvas {
+    max-width: 100%;
+    display: block;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--sem-accent);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  :target,
+  section[id] {
+    scroll-margin-top: 5.5rem;
+  }
+}
+
+/* ============================================================
+   components
+   ============================================================ */
+@layer components {
+  .shell {
+    width: 100%;
+    max-width: var(--g-max);
+    margin-inline: auto;
+    padding-inline: var(--g-margin);
+  }
+
+  /* Handwritten section accent (shadows-into-light). */
+  .kicker {
+    font-family: var(--font-script);
+    font-weight: 400;
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    line-height: 1;
+    color: var(--sem-accent-2);
+  }
+  :root[data-theme="dark"] .kicker {
+    color: var(--sem-accent);
+  }
+
+  .eyebrow {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--sem-ink-dim);
+  }
+
+  /* Reveal - resting state VISIBLE. Hidden state is armed by JS in a layout
+     effect (before paint), so no-JS, print and crawlers all get content. */
+  [data-reveal="hidden"] {
+    opacity: 0;
+    transform: translateY(var(--reveal-distance, 16px));
+  }
+  [data-reveal="shown"] {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--t-slow) var(--e-out) var(--reveal-delay, 0ms),
+      transform var(--t-slow) var(--e-out) var(--reveal-delay, 0ms);
+  }
+
+  /* Experience bullet marker: an outlined ring with a soft, looping ripple.
+     Resting state (no-JS, print, already-on-screen) is a plain visible ring -
+     same contract as [data-reveal] above. The Bullets component
+     (src/components/ui/bullets.tsx) arms [data-bullets] on the <ul> and flips it
+     to "shown" only when the list actually scrolls into view - NOT off Reveal,
+     whose 4s failsafe fired below the fold. On "shown" the ring scales in once
+     and the ::after ripple begins looping. Staggered per bullet via --dot-i so
+     the ripples cascade rather than pulse in unison. */
+  .exp-dot {
+    position: relative;
+    margin-top: 0.4rem;
+    width: 9px;
+    height: 9px;
+    border-radius: 9999px;
+    border: 1.5px solid var(--sem-accent);
+    /* faint neon bloom so the ring glows even at rest */
+    box-shadow:
+      0 0 4px -1px var(--sem-accent),
+      0 0 8px -2px var(--sem-accent);
+  }
+  /* The looping ripple. Invisible at rest; only animates once its list is shown.
+     Two stacked blurs give it the neon glow that spills past the stroke. */
+  .exp-dot::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 9999px;
+    border: 1.5px solid var(--sem-accent);
+    box-shadow:
+      0 0 5px var(--sem-accent),
+      0 0 10px var(--sem-accent);
+    opacity: 0;
+  }
+  /* Armed below the fold before paint: collapse the ring so it grows in. */
+  [data-bullets="hidden"] .exp-dot {
+    transform: scale(0);
+    opacity: 0;
+  }
+  [data-bullets="shown"] .exp-dot {
+    animation: exp-ring-in var(--t-base) var(--e-out) both;
+    animation-delay: calc(var(--dot-i, 0) * 70ms);
+  }
+  [data-bullets="shown"] .exp-dot::after {
+    animation: exp-ring-pulse 2.4s var(--e-out) infinite;
+    /* begin after the ring has settled, offset per bullet so they cascade */
+    animation-delay: calc(var(--t-base) + var(--dot-i, 0) * 260ms);
+  }
+  @keyframes exp-ring-in {
+    from {
+      transform: scale(0);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  @keyframes exp-ring-pulse {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    18% {
+      opacity: 0.9;
+    }
+    85% {
+      opacity: 0;
+    }
+    100% {
+      transform: scale(2.3);
+      opacity: 0;
+    }
+  }
+
+  .skip {
+    position: absolute;
+    left: var(--g-margin);
+    top: -100%;
+    z-index: 100;
+    background: var(--sem-ink);
+    color: var(--sem-ground);
+    padding: 0.6rem 1rem;
+    font-size: var(--text-micro);
+    border-radius: 6px;
+    transition: top var(--t-fast) var(--e-out);
+  }
+  .skip:focus {
+    top: var(--g-margin);
+  }
+}
+
+/* ============================================================
+   reduced motion - unlayered + !important on purpose: must beat all.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  [data-bullets="hidden"] .exp-dot {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .no-print {
+    display: none !important;
+  }
+  [data-reveal],
+  [data-bullets="hidden"] .exp-dot {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
